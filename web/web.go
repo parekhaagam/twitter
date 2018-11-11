@@ -7,7 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
-
+	"./controllers"
 )
 
 type Web struct {
@@ -105,6 +105,7 @@ func New(cfg *Config) (*Web, error) {
 	mx.HandleFunc("/signupValidation", validateSignup)
 	mx.HandleFunc("/loginValidation", validateLogin)
 	mx.HandleFunc("/*", signup)
+	mx.HandleFunc("/show-users", controllers.Show_users)
 	return ws, nil
 }
 
