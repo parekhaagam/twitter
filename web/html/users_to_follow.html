@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users List</title>
+</head>
+<body style="align-content: center">
+    <H3>USER DIRECTORY</H3>
+    <form action="/follow" method="post">
+        <table style="align-items: center" border="1">
+            <tr>
+                <td>Select to Follow</td>
+                <td>Twitter Handle</td>
+            </tr>
+        {{with .List}}
+        {{range . }}
+            <tr>
+            {{ if .IsFollowed }}
+                <td><input type="checkbox" value="{{.Name}}" checked name="follow-chkbx" id="{{.Name}}"></td>
+                <td>{{ .Name }}</td>
+            {{else}}
+                <td><input type="checkbox" value="{{.Name}}" name="follow-chkbx" id="{{.Name}}"></td>
+                <td>{{ .Name }}</td>
+            {{end}}
+            </tr>
+        {{end}}
+        {{end}}
+        </table>
+        <input type="submit" value="Follow"/>
+    </form>
+</body>
+</html>

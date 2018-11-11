@@ -1,15 +1,17 @@
 package controllers
 
 import (
-	"container/list"
+	"../../globals"
+	"../../web"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
-	"html/template"
-	"strings"
-	"../../web"
 	"strconv"
+	"strings"
 )
+
+const WEB_HTML_DIR  = "web/html"
 
 type loginPage struct {
 	Email    string
@@ -34,24 +36,17 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// for getting users
-	users := userRecord.GetUsers(pageNumber, 25)
-	// for getting numbers of pages possible
-	possiblePages := userRecord.GetUsersNumber() / limit
+	//users := userRecord.GetUsers(pageNumber, 25)
+
 }
 
 
 func Signup(w http.ResponseWriter, r *http.Request) {
-
-
-	t, err := template.ParseFiles("web/html/signup.html")
+	t, err := template.ParseFiles(WEB_HTML_DIR+"/users_to_follow.html")
 	if err != nil{
 		log.Print("sign up page not loaded properly", err)
 	}
-	mLoginPage := loginPage{
-		Email:    "EmailId",
-		Password: "password",
-	}
-	err = t.Execute(w, mLoginPage)
+	err = t.Execute(w, Get_all_users())
 	if err != nil {
 		log.Print("error while executing ", err)
 	}
@@ -88,17 +83,35 @@ func ValidateLogin(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func ValidateSignup(w http.ResponseWriter, r *http.Request){
+func ValidateSignup(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
 	emailId := strings.Join(r.Form["EmailId"], "")
 	password := strings.Join(r.Form["password"], "")
 
-
-	if userRecord.InsertUser(emailId, password){
+	if userRecord.InsertUser(emailId, password) {
 		w.Write([]byte("valid userid"))
-	}else{
+	} else {
 		w.Write([]byte("Invalid userid"))
 	}
 
+}
+func Follow_users(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	selected := r.Form["follow-chkbx"]
+
+	followers := globals.Followers
+	currUserName := "manish.n" //should come from session @agam
+	follows,ok := followers[currUserName]
+	if !ok {
+		follows = []globals.User{}
+	}
+
+	for _, userName := range selected {
+		follows = append(follows, globals.User{userName})
+	}
+
+	followers[currUserName] = follows
+	fmt.Println(followers)
+	Show_users(w, r)
 }

@@ -3,12 +3,96 @@ package web
 import (
 	"./controllers"
 	"context"
+	"fmt"
+	"log"
 	"net/http"
+	"strings"
+	"../globals"
+	"html/template"
 )
 
 type Web struct {
 	srv *http.Server
+
+	//contentDaemon *contentd.Contentd
 }
+
+type loginPage struct {
+	Email    string
+	Password string
+}
+
+var userRecord  = &UsersRecord{
+	users: make(map[string]string),
+}
+
+func initGlobals() {
+	globals.Followers = make(map[string][]globals.User)
+}
+
+func signup(w http.ResponseWriter, r *http.Request) {
+
+
+	t, err := template.ParseFiles("web/html/signup.html")
+	if err != nil{
+		log.Print("sign up page not loaded properly", err)
+	}
+	mLoginPage := loginPage{
+		Email:    "EmailId",
+		Password: "password",
+	}
+	err = t.Execute(w, mLoginPage)
+	if err != nil {
+		log.Print("error while executing ", err)
+	}
+}
+
+func login(w http.ResponseWriter, r *http.Request) {
+
+	t:= template.Must(template.ParseFiles("web/html/login.html"))
+	mLoginPage := loginPage{
+		Email:    "EmailId",
+		Password: "password",
+	}
+	err := t.Execute(w, mLoginPage)
+	if err != nil {
+		log.Print("error while executing ", err)
+	}
+
+}
+
+
+func validateLogin(w http.ResponseWriter, r *http.Request) {
+
+	r.ParseForm()
+
+	emailId := strings.Join(r.Form["EmailId"], "")
+	password := strings.Join(r.Form["password"], "")
+
+	if userRecord.UserExist(emailId, password){
+		fmt.Println("")
+		w.Write([]byte("valid userid"))
+	}else{
+		w.Write([]byte("Invalid UserId"))
+	}
+
+}
+
+func validateSignup(w http.ResponseWriter, r *http.Request){
+
+	r.ParseForm()
+	emailId := strings.Join(r.Form["EmailId"], "")
+	password := strings.Join(r.Form["password"], "")
+
+
+	if userRecord.InsertUser(emailId, password){
+		w.Write([]byte("valid userid"))
+	}else{
+		w.Write([]byte("Invalid userid"))
+	}
+
+}
+
 
 func New(cfg *Config) (*Web, error) {
 	mx := http.NewServeMux()
@@ -21,12 +105,14 @@ func New(cfg *Config) (*Web, error) {
 		srv: s,
 	}
 
+	initGlobals()
 	mx.HandleFunc("/", controllers.Login)
 	mx.HandleFunc("/signup", controllers.Signup)
 	mx.HandleFunc("/signupValidation", controllers.ValidateSignup)
 	mx.HandleFunc("/loginValidation", controllers.ValidateLogin)
 	mx.HandleFunc("/*", controllers.Signup)
 	mx.HandleFunc("/show-users", controllers.Show_users)
+	mx.HandleFunc("/follow", controllers.Follow_users)
 	return ws, nil
 }
 
