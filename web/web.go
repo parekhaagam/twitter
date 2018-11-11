@@ -22,12 +22,9 @@ type loginPage struct {
 	Password string
 }
 
-var userRecord  = &UsersRecord{
-	users: make(map[string]string),
-}
-
 func initGlobals() {
 	globals.Followers = make(map[string][]globals.User)
+	globals.UsersRecord = make(map[string]string)
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
@@ -69,7 +66,7 @@ func validateLogin(w http.ResponseWriter, r *http.Request) {
 	emailId := strings.Join(r.Form["EmailId"], "")
 	password := strings.Join(r.Form["password"], "")
 
-	if userRecord.UserExist(emailId, password){
+	if controllers.UserExist(emailId, password){
 		fmt.Println("")
 		w.Write([]byte("valid userid"))
 	}else{
@@ -85,7 +82,7 @@ func validateSignup(w http.ResponseWriter, r *http.Request){
 	password := strings.Join(r.Form["password"], "")
 
 
-	if userRecord.InsertUser(emailId, password){
+	if controllers.InsertUser(emailId, password){
 		w.Write([]byte("valid userid"))
 	}else{
 		w.Write([]byte("Invalid userid"))

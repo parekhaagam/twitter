@@ -2,12 +2,10 @@ package controllers
 
 import (
 	"../../globals"
-	"../../web"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 )
 
@@ -18,33 +16,41 @@ type loginPage struct {
 	Password string
 }
 
-var userRecord  = &web.UsersRecord{
-	make(map[string]string),
-}
-
 
 var limit = 25
 
-func Show_users(w http.ResponseWriter, r *http.Request) {
-	pageNumber,err := strconv.Atoi(strings.Split(r.URL.Path, "page=")[1])
+func Signup(w http.ResponseWriter, r *http.Request) {
+	t, err := template.ParseFiles(WEB_HTML_DIR+"/signup.html")
 	if err != nil{
-		if (pageNumber < 1){
-			pageNumber = 1
-		}
-		fmt.Printf("displayig content for pagge number:%d", pageNumber)
-		log.Println("string to interger conversion not happen properly")
+		log.Print("Sign up page not loaded properly", err)
 	}
-
-	// for getting users
-	//users := userRecord.GetUsers(pageNumber, 25)
-
+	mLoginPage := loginPage{
+		"EmailId",
+		"password",
+	}
+	err = t.Execute(w, mLoginPage)
+	if err != nil {
+		log.Print("error while executing ", err)
+	}
 }
 
 
-func Signup(w http.ResponseWriter, r *http.Request) {
+func Show_users(w http.ResponseWriter, r *http.Request) {
+	//pageNumber,err := strconv.Atoi(strings.Split(r.URL.Path, "page=")[1])
+	//if err != nil{
+	//	if (pageNumber < 1){
+	//		pageNumber = 1
+	//	}
+	//	fmt.Printf("displayig content for pagge number:%d", pageNumber)
+	//	log.Println("string to interger conversion not happen properly")
+	//}
+	//
+	//// for getting users
+	////users := userRecord.GetUsers(pageNumber, 25)
+
 	t, err := template.ParseFiles(WEB_HTML_DIR+"/users_to_follow.html")
 	if err != nil{
-		log.Print("sign up page not loaded properly", err)
+		log.Print("", err)
 	}
 	err = t.Execute(w, Get_all_users())
 	if err != nil {
@@ -74,7 +80,7 @@ func ValidateLogin(w http.ResponseWriter, r *http.Request) {
 	emailId := strings.Join(r.Form["EmailId"], "")
 	password := strings.Join(r.Form["password"], "")
 
-	if userRecord.UserExist(emailId, password){
+	if UserExist(emailId, password){
 		fmt.Println("")
 		w.Write([]byte("valid userid"))
 	}else{
@@ -89,7 +95,7 @@ func ValidateSignup(w http.ResponseWriter, r *http.Request) {
 	emailId := strings.Join(r.Form["EmailId"], "")
 	password := strings.Join(r.Form["password"], "")
 
-	if userRecord.InsertUser(emailId, password) {
+	if InsertUser(emailId, password) {
 		w.Write([]byte("valid userid"))
 	} else {
 		w.Write([]byte("Invalid userid"))
