@@ -30,3 +30,18 @@ type User struct {
 //Key: UserName
 //Value: Password
 var UsersRecord map[string]string
+
+// used to identify each tweet
+type Tweet struct {
+	UserId string
+	TID       string
+	Timestamp int64
+	Content   string
+}
+
+// Stores User tweets
+// Key: UserName
+//Value : Tweet Object
+var UserTweet map[string][]Tweet
+
+var TweetIdStored map[string]string

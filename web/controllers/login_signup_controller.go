@@ -55,3 +55,8 @@ func GetAllFollowing(user globals.User) ([]globals.User){
 	}
 	return follows
 }
+
+/*func getTweets(emailId string)[]{
+
+}*/
+
