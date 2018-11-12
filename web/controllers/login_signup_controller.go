@@ -47,7 +47,7 @@ func Follows(user1 globals.User, user2 globals.User) bool{
 	return doesFollow
 }
 
-func GetFollowing(user globals.User) ([]globals.User){
+func GetAllFollowing(user globals.User) ([]globals.User){
 	followers := globals.Followers
 	follows,ok := followers[user.UserName]
 	if !ok {

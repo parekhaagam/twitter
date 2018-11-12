@@ -108,17 +108,36 @@ func Follow_users(w http.ResponseWriter, r *http.Request) {
 	selected := r.Form["follow-chkbx"]
 
 	followers := globals.Followers
-	currUserName := "manish.n" //should come from session @agam
-	follows,ok := followers[currUserName]
-	if !ok {
-		follows = []globals.User{}
+	currUser := globals.User{"manish.n"} //should come from session @agam
+	follows := GetAllFollowing(currUser)
+
+	unfollowed := getMissing(follows, selected)
+	for user, index := range unfollowed {
+		fmt.Println("Unfollowed", user.UserName)
+		follows = append(follows[:index],follows[index+1:]...)
 	}
 
 	for _, userName := range selected {
 		follows = append(follows, globals.User{userName})
 	}
 
-	followers[currUserName] = follows
+	followers[currUser.UserName] = follows
 	fmt.Println(followers)
 	Show_users(w, r)
+}
+
+func getMissing(follows []globals.User, selected []string) (map[globals.User]int){
+	map1 := make(map[string]int)
+	unfollowed := make(map[globals.User]int)
+	for _, userName := range selected {
+		map1[userName] = 1
+	}
+
+	for i, user := range follows {
+		_, ok := map1[user.UserName]
+		if !ok {
+			unfollowed[user] = i
+		}
+	}
+	return unfollowed
 }
