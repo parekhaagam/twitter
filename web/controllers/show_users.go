@@ -1,39 +1,33 @@
 package controllers
 
-type user struct {
-	Name string
-	IsFollowed bool
+import (
+	"../../globals"
+	"fmt"
+)
+
+//Used for "Search Users" Page
+type userFollowed struct{
+	UserName string
+	Isfollowed bool
+}
+
+//Used for "Search Users" Page
+type UserList struct{
+	List []userFollowed
+	NextPage bool
 }
 
 
-type UsersList struct {
-	List []user
-}
-
-func Get_all_users() (ul UsersList){
-
-	users := []user{
-		{
-			"manish.n",
-			true,
-		},
-		{
-			"ysd",
-			false,
-		},
-		{
-			"agamp",
-			false,
-		},
-		{
-			"srk",
-			true,
-		},
-		{
-			"dhoni007",
-			false,
-		},
+func Get_all_users() (ul UserList){
+	var users []userFollowed
+	allUsers := globals.AllUsers
+	loggedInUser := globals.User{"manish.n"} //should come from session
+	for _,user := range allUsers {
+		if user.UserName != loggedInUser.UserName {
+			users = append(users, userFollowed{user.UserName, Follows(loggedInUser, user)})
+		}
 	}
 
-	return UsersList{users}
+	fmt.Println(users)
+	return UserList{users, false}
 }

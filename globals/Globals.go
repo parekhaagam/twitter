@@ -14,17 +14,17 @@ type User struct {
 	UserName string
 }
 
-//Used for "Search Users" Page
-type UserFollowed struct{
-	UserName string
-	Isfollowed bool
-}
-
-//Used for "Search Users" Page
-type UserList struct{
-	List []UserFollowed
-	NextPage bool
-}
+////Used for "Search Users" Page
+//type UserFollowed struct{
+//	UserName string
+//	Isfollowed bool
+//}
+//
+////Used for "Search Users" Page
+//type UserList struct{
+//	List []UserFollowed
+//	NextPage bool
+//}
 
 //Stores User Credentials
 //Key: UserName

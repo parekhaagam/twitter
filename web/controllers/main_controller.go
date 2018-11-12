@@ -50,7 +50,7 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 
 	t, err := template.ParseFiles(WEB_HTML_DIR+"/users_to_follow.html")
 	if err != nil{
-		log.Print("", err)
+		log.Print("500 Iternal Server Error", err)
 	}
 	err = t.Execute(w, Get_all_users())
 	if err != nil {
@@ -102,6 +102,7 @@ func ValidateSignup(w http.ResponseWriter, r *http.Request) {
 	}
 
 }
+
 func Follow_users(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	selected := r.Form["follow-chkbx"]

@@ -15,12 +15,12 @@
         {{with .List}}
         {{range . }}
             <tr>
-            {{ if .IsFollowed }}
-                <td><input type="checkbox" value="{{.Name}}" checked name="follow-chkbx" id="{{.Name}}"></td>
-                <td>{{ .Name }}</td>
+            {{ if .Isfollowed }}
+                <td><input type="checkbox" value="{{.UserName}}" checked name="follow-chkbx" id="{{.UserName}}"></td>
+                <td>{{ .UserName }}</td>
             {{else}}
-                <td><input type="checkbox" value="{{.Name}}" name="follow-chkbx" id="{{.Name}}"></td>
-                <td>{{ .Name }}</td>
+                <td><input type="checkbox" value="{{.UserName}}" name="follow-chkbx" id="{{.UserName}}"></td>
+                <td>{{ .UserName }}</td>
             {{end}}
             </tr>
         {{end}}

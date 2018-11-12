@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"../../globals"
 )
 
@@ -22,40 +21,37 @@ func UserExist(userName string, password string)bool{
 func InsertUser(newUserName string, password string)bool{
 	if ! UserExist(newUserName, password) {
 		globals.UsersRecord[newUserName] = password
+		globals.AllUsers = append(globals.AllUsers, globals.User{newUserName})
 		return true
 	}else {
 		return false
 	}
 }
 
-var usersDataCache []globals.UserFollowed = nil
+//var usersDataCache []globals.UserFollowed = nil
 
-func GetUsers(pageNumber int, limit int) globals.UserList{
+//Returns true if user 1 follows user 2
+func Follows(user1 globals.User, user2 globals.User) bool{
+	followers := globals.Followers
+	follows,ok := followers[user1.UserName]
 
-	if (usersDataCache == nil ){
-		usersDataCache = []globals.UserFollowed{}
-		var tmp globals.UserFollowed
-		for k := range globals.UsersRecord {
-			tmp = globals.UserFollowed{
-				UserName:k,
-				Isfollowed:false,
+	doesFollow := false
+	if ok {
+		for _,followedUser := range follows {
+			if followedUser.UserName == user2.UserName {
+				doesFollow = true
+				break
 			}
-			usersDataCache = append(usersDataCache, tmp)
 		}
 	}
+	return doesFollow
+}
 
-	startUser := pageNumber * limit
-	endUser := startUser + limit
-
-	var nextPageStatus = true
-	if (startUser < len(usersDataCache) && endUser > len(usersDataCache)) {
-		fmt.Printf("Display for page number %d for users starting:%i\t till  ", pageNumber, startUser, endUser)
-		endUser = len(usersDataCache)
-		nextPageStatus = false
+func GetFollowing(user globals.User) ([]globals.User){
+	followers := globals.Followers
+	follows,ok := followers[user.UserName]
+	if !ok {
+		follows = make([]globals.User,0,0)
 	}
-
-	return globals.UserList{
-		List:usersDataCache[startUser:endUser],
-		NextPage:nextPageStatus,
-	}
+	return follows
 }

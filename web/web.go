@@ -1,14 +1,14 @@
 package web
 
 import (
+	"../globals"
 	"./controllers"
 	"context"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"strings"
-	"../globals"
-	"html/template"
 )
 
 type Web struct {
@@ -25,6 +25,20 @@ type loginPage struct {
 func initGlobals() {
 	globals.Followers = make(map[string][]globals.User)
 	globals.UsersRecord = make(map[string]string)
+	globals.AllUsers = insertDummies()
+}
+
+func insertDummies() (allUsers[] globals.User){
+	globals.UsersRecord["manish.n"] = "admin"
+	globals.UsersRecord["dhoni007"] = "admin"
+	globals.UsersRecord["srk"] = "admin"
+	globals.UsersRecord["chandler"] = "admin"
+
+	allUsers = append(allUsers, globals.User{"manish.n"})
+	allUsers = append(allUsers, globals.User{"dhoni007"})
+	allUsers = append(allUsers, globals.User{"srk"})
+	allUsers = append(allUsers, globals.User{"chandler"})
+	return allUsers
 }
 
 func signup(w http.ResponseWriter, r *http.Request) {
