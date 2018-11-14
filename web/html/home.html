@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+    font-family: Arial;
+     color: black;
+}
+
+
+.left {
+    left: 0;
+    height: 100%;
+    width: 20%;
+    position: fixed;
+    padding-left: 10px
+}
+
+.right {
+    right: 0;
+    height: 100%;
+    width: 80%;
+    position: fixed;
+}
+
+.button {
+    background-color: #008CBA;
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.container {
+    border: 2px solid #dedede;
+    background-color: #f1f1f1;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.container img {
+    float: left;
+    max-width: 60px;
+    width: 100%;
+    margin-right: 20px;
+    border-radius: 50%;
+}
+
+.time-left {
+    float: right;
+    color: #999;
+}
+
+</style>
+</head>
+<body>
+
+<div class="left">
+    
+    <p><img src="icon.png"></p> 
+    <h2>{{ .UserId}}</h2>
+    <p>Followers: {{ .FollowersNumber}}</p>
+    <p>Following: {{ .FollowingNumber}}</p>
+</div>
+
+<div class="right">  
+  <p><textarea name="Text1" cols="80" rows="6" placeholder = "What's on your mind?"></textarea> <button class= "button"value="Submit" >Submit</button>  </p>
+
+{{ with .List}}
+{{ range .}}
+    <div class="container">
+      <p>
+        <img src="chat.png" alt="Avatar">
+      </p>
+      <p><h5>{{ .UserName}}</h5>
+      <p>{{ .TweetPayload }}</p>
+      </p>
+      <span class="time-right">{{ .TweetTime }}</span>
+    </div>
+{{end}}
+{{end}}
+
+</div>
+     
+</body>
+</html> 
