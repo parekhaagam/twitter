@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"./auth"
 )
 
 type Web struct {
@@ -119,12 +120,13 @@ func New(cfg *Config) (*Web, error) {
 	initGlobals()
 	mx.HandleFunc("/", controllers.Login)
 	mx.HandleFunc("/signup", controllers.Signup)
-	mx.HandleFunc("/signupValidation", controllers.ValidateSignup)
-	mx.HandleFunc("/loginValidation", controllers.ValidateLogin)
+	mx.HandleFunc("/signupValidation", controllers.ValidateSignup(controllers.Show_users))
+	mx.HandleFunc("/loginValidation", controllers.ValidateLogin(controllers.Show_users))
 	mx.HandleFunc("/*", controllers.Signup)
-	mx.HandleFunc("/show-users", controllers.Show_users)
+	mx.HandleFunc("/show-users", auth.AuthenticationMiddleware(controllers.Show_users))
 	mx.HandleFunc("/follow", controllers.Follow_users)
 	return ws, nil
+
 }
 
 func (w *Web) Start() error {

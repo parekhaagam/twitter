@@ -2,7 +2,7 @@ package web
 
 import (
 	"../globals"
-	"github.com/google/uuid"
+	"../src/github.com/google/uuid"
 	"sort"
 	"time"
 )

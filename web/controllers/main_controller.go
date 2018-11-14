@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"../auth"
 )
 
 const WEB_HTML_DIR  = "web/html"
@@ -47,15 +48,22 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 	//
 	//// for getting users
 	////users := userRecord.GetUsers(pageNumber, 25)
-
 	t, err := template.ParseFiles(WEB_HTML_DIR+"/users_to_follow.html")
 	if err != nil{
 		log.Print("500 Iternal Server Error", err)
 	}
-	err = t.Execute(w, Get_all_users())
-	if err != nil {
-		log.Print("error while executing ", err)
+	var c,cookieErr = r.Cookie("token")
+	if cookieErr==nil{
+		http.SetCookie(w,c);
+		err = t.Execute(w, Get_all_users())
+		if err != nil {
+			log.Print("error while executing ", err)
+		}
+	}else {
+		w.WriteHeader(500)
+		//w.Write([]byte("Error"))
 	}
+
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
@@ -73,34 +81,48 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func ValidateLogin(w http.ResponseWriter, r *http.Request) {
+func ValidateLogin(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-	r.ParseForm()
+		r.ParseForm()
 
-	emailId := strings.Join(r.Form["EmailId"], "")
-	password := strings.Join(r.Form["password"], "")
+		emailId := strings.Join(r.Form["EmailId"], "")
+		password := strings.Join(r.Form["password"], "")
 
-	if UserExist(emailId, password){
-		fmt.Println("")
-		w.Write([]byte("valid userid"))
-	}else{
-		w.Write([]byte("Invalid UserId"))
-	}
+		if UserExist(emailId, password){
+			fmt.Println("")
+			//w.Write([]byte("valid userid"))
+			var c =http.Cookie{Name:"token",Value:auth.GetToken(emailId)}
+			http.SetCookie(w,&c)
+			r.AddCookie(&c)
+			r.Header.Set("Cookie","")
+			next.ServeHTTP(w,r)
+		}else{
+			w.Write([]byte("Invalid UserId"))
+		}
+	})
 
 }
 
-func ValidateSignup(w http.ResponseWriter, r *http.Request) {
+func ValidateSignup(next http.HandlerFunc) http.HandlerFunc{
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-	r.ParseForm()
-	emailId := strings.Join(r.Form["EmailId"], "")
-	password := strings.Join(r.Form["password"], "")
+		r.ParseForm()
+		emailId := strings.Join(r.Form["EmailId"], "")
+		password := strings.Join(r.Form["password"], "")
 
-	if InsertUser(emailId, password) {
-		w.Write([]byte("valid userid"))
-	} else {
-		w.Write([]byte("Invalid userid"))
-	}
+		if InsertUser(emailId, password) {
+			var c =http.Cookie{Name:"token",Value:auth.GetToken(emailId)}
+			http.SetCookie(w,&c)
+			r.Header.Set("Cookie","")
+			r.AddCookie(&c)
+			//w.Write([]byte("valid userid"))
+			next.ServeHTTP(w,r)
+		} else {
+			w.Write([]byte("Invalid userid"))
+		}
 
+	})
 }
 
 func Follow_users(w http.ResponseWriter, r *http.Request) {
