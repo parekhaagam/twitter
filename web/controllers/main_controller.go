@@ -93,9 +93,9 @@ func ValidateLogin(next http.HandlerFunc) http.HandlerFunc {
 			fmt.Println("")
 			//w.Write([]byte("valid userid"))
 			var c =http.Cookie{Name:"token",Value:auth.GetToken(emailId)}
+			r.Header.Set("Cookie","")
 			http.SetCookie(w,&c)
 			r.AddCookie(&c)
-			r.Header.Set("Cookie","")
 			next.ServeHTTP(w,r)
 		}else{
 			w.Write([]byte("Invalid UserId"))
