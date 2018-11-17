@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"../../globals"
-	"../../src/github.com/google/uuid"
+	"github.com/google/uuid"
 	"sort"
+	"strconv"
 	"time"
 )
 
@@ -11,9 +12,9 @@ func getTweets(userId string)[]globals.Tweet{
 	return globals.UserTweet[userId]
 }
 
-func InsertTweets(userId string, content string) {
+func InsertTweets(user globals.User, content string) {
 
-	if _ ,ok := globals.UserTweet[userId]; ok{
+	if _ ,ok := globals.UserTweet[user.UserName]; ok{
 
 
 		TID := uuid.New().String()
@@ -29,9 +30,9 @@ func InsertTweets(userId string, content string) {
 			Content:content,
 			Timestamp: time.Now().Unix(),
 			TID: TID,
-			UserId:userId,
+			UserId:user.UserName,
 		}
-		globals.UserTweet[userId] = append(globals.UserTweet[userId], tmp)
+		globals.UserTweet[user.UserName] = append(globals.UserTweet[user.UserName], tmp)
 	}
 }
 
@@ -47,5 +48,35 @@ func GetFollowersTweets(followings []globals.User)[]globals.Tweet{
 		return followingTweet[i].Timestamp > followingTweet[j].Timestamp
 	})
 
+	for index, _ := range followingTweet{
+		followingTweet[index].TimeMessage = TimeToString(followingTweet[index].Timestamp)
+	}
 	return followingTweet
+}
+
+func TimeToString(se int64) string{
+	tweetTime := time.Unix(se,0)
+	now := time.Now()
+	diff := now.Sub(tweetTime)
+	message := ""
+
+	seconds := int(diff.Seconds())
+	if seconds >= 60{
+		minutes := int(diff.Minutes())
+		if minutes >= 60{
+			hours := int(diff.Hours())
+			if hours >= 24{
+				days := hours / 24
+				message = strconv.Itoa(days) + " day ago"
+			}else{
+				message = strconv.Itoa(hours) + " hour ago"
+			}
+		}else{
+			message = strconv.Itoa(minutes) + " minute ago"
+		}
+	}else{
+		message = strconv.Itoa(seconds) + " second ago"
+	}
+
+	return message
 }

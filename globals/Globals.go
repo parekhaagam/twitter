@@ -33,10 +33,11 @@ var UsersRecord map[string]string
 
 // used to identify each tweet
 type Tweet struct {
-	UserId string
-	TID       string
-	Timestamp int64
-	Content   string
+	UserId      string
+	TID         string
+	Timestamp   int64
+	Content     string
+	TimeMessage string
 }
 
 // Stores User tweets

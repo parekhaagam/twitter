@@ -166,8 +166,18 @@ func getMissing(follows []globals.User, selected []string) (map[globals.User]int
 
 func Feed(w http.ResponseWriter, r *http.Request) {
 	currUser := globals.User{"manish.n"} //should come from session @agam
+
+	r.ParseForm()
+	tweet_content := r.Form["tweet_box"]
+	if len(tweet_content) > 0 {
+		fmt.Println(tweet_content[0])
+		InsertTweets(currUser, tweet_content[0])
+	}
+
 	following := GetAllFollowing(currUser)
+	following = append(following, currUser)
 	tweets := GetFollowersTweets(following)
+
 	t, err := template.ParseFiles(WEB_HTML_DIR+"/feed.html")
 	if err != nil{
 		log.Print("500 Iternal Server Error", err)

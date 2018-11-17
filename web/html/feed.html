@@ -22,6 +22,7 @@ body {
     height: 100%;
     width: 80%;
     position: fixed;
+    overflow: scroll;
 }
 
 .button {
@@ -66,9 +67,13 @@ body {
     <p>Following: {{ .FollowingNumber}}</p>
 </div>
 
-<div class="right">  
-  <p><textarea name="Text1" cols="80" rows="6" placeholder = "What's on your mind?"></textarea> <button class= "button"value="Submit" >Submit</button>  </p>
+<div class="right">
+    <form action="/feed" method="post">
+  <p><textarea name="tweet_box" id="tweet_box" cols="80" rows="6" placeholder = "What's on your mind?"></textarea>
 
+  </p>
+        <input class = "button" type="submit" value="Post"/>
+    </form>
 {{ with .Tweets}}
 {{ range .}}
     <div class="container">
@@ -78,7 +83,7 @@ body {
       <p><h5>{{ .UserId}}</h5>
       <p>{{ .Content }}</p>
       </p>
-      <span class="time-right">{{ .Timestamp }}</span>
+      <span class="time-right">{{ .TimeMessage }}</span>
     </div>
 {{end}}
 {{end}}
