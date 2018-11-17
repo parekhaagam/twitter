@@ -8,7 +8,7 @@ import (
 func main(){
 
 	cfg := &web.Config{
-		HTTPAddr: "localhost:8080",
+		HTTPAddr: "localhost:8090",
 	}
 
 	webSrv, err := web.New(cfg)

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"../auth/storage/memory"
+	"github.com/google/uuid"
 	"net/http"
 	"time"
 )
@@ -13,14 +14,14 @@ import (
 func GetToken(userId string) (string){
 	memory.AuthObject.M.Lock()
 	defer memory.AuthObject.M.Unlock()
-	var val,ok = memory.AuthObject.UserMap[userId]
+	var val,ok = memory.AuthObject.LogedInUserMap[userId]
 	if ok {
-		memory.AuthObject.M.Unlock()
+		//memory.AuthObject.M.Unlock()
 			return val.Token
 	}else {
-		var tokenDetailsObject = memory.TokenDetails{UserId: userId,Token: userId,TimeGenerated:time.Now()}
-		memory.AuthObject.UserMap[userId] = tokenDetailsObject
-		var token = tokenDetailsObject.Token
+		var token = uuid.New().String()
+		var tokenDetailsObject = memory.TokenDetails{UserId: userId,Token: token,TimeGenerated:time.Now()}
+		memory.AuthObject.LogedInUserMap[userId] = tokenDetailsObject
 		memory.AuthObject.TokenMap[token] = tokenDetailsObject;
 		return token
 	}

@@ -15,14 +15,14 @@ type TokenDetails struct {
 	Token string
 }
 type Authentication struct {
-	IsStarted bool
-	M sync.Mutex
-	UserMap map[string]TokenDetails
-	TokenMap map[string]TokenDetails
+	IsStarted      bool
+	M              sync.Mutex
+	LogedInUserMap map[string]TokenDetails
+	TokenMap       map[string]TokenDetails
 }
 var AuthObject  = Authentication{IsStarted:false,
-	UserMap:make(map[string]TokenDetails),
-	TokenMap: make(map[string]TokenDetails)}
+	LogedInUserMap: make(map[string]TokenDetails),
+	TokenMap:       make(map[string]TokenDetails)}
 
 func (auth *Authentication)StartAuthObject(){
 	AuthObject.IsStarted = true;
