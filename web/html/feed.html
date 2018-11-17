@@ -60,8 +60,8 @@ body {
 
 <div class="left">
     
-    <p><img src="icon.png"></p> 
-    <h2>{{ .UserId}}</h2>
+    <p><img src="/public/images/icon.png"></p>
+    <h2>{{ .CurrUser}}</h2>
     <p>Followers: {{ .FollowersNumber}}</p>
     <p>Following: {{ .FollowingNumber}}</p>
 </div>
@@ -69,16 +69,16 @@ body {
 <div class="right">  
   <p><textarea name="Text1" cols="80" rows="6" placeholder = "What's on your mind?"></textarea> <button class= "button"value="Submit" >Submit</button>  </p>
 
-{{ with .List}}
+{{ with .Tweets}}
 {{ range .}}
     <div class="container">
       <p>
-        <img src="chat.png" alt="Avatar">
+        <img src="/public/images/chat.png" alt="Avatar">
       </p>
-      <p><h5>{{ .UserName}}</h5>
-      <p>{{ .TweetPayload }}</p>
+      <p><h5>{{ .UserId}}</h5>
+      <p>{{ .Content }}</p>
       </p>
-      <span class="time-right">{{ .TweetTime }}</span>
+      <span class="time-right">{{ .Timestamp }}</span>
     </div>
 {{end}}
 {{end}}

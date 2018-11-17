@@ -2,14 +2,16 @@ package web
 
 import (
 	"../globals"
+	"./auth"
 	"./controllers"
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 	"html/template"
 	"log"
 	"net/http"
 	"strings"
-	"./auth"
+	"time"
 )
 
 type Web struct {
@@ -26,6 +28,7 @@ type loginPage struct {
 func initGlobals() {
 	globals.Followers = make(map[string][]globals.User)
 	globals.UsersRecord = make(map[string]string)
+	globals.UserTweet = make(map[string][]globals.Tweet)
 	globals.AllUsers = insertDummies()
 }
 
@@ -39,6 +42,20 @@ func insertDummies() (allUsers[] globals.User){
 	allUsers = append(allUsers, globals.User{"dhoni007"})
 	allUsers = append(allUsers, globals.User{"srk"})
 	allUsers = append(allUsers, globals.User{"chandler"})
+
+
+	tweet1 := globals.Tweet{TID:uuid.New().String(), Content:"Mujhe bhi T20 khelna h", Timestamp:time.Now().Unix(), UserId:"dhoni007"}
+	tweet2 := globals.Tweet{TID:uuid.New().String(), Content:"Zero releasing December 2018", Timestamp:time.Now().Unix(), UserId:"srk"}
+	tweet3 := globals.Tweet{TID:uuid.New().String(), Content:"Could I be wearing anymore clothes", Timestamp:time.Now().Unix(), UserId:"chandler"}
+	tweet4 := globals.Tweet{TID:uuid.New().String(), Content:"SDE at Google", Timestamp:time.Now().Unix(), UserId:"manish.n"}
+	tweet5 := globals.Tweet{TID:uuid.New().String(), Content:"Virat ne mujhe nikal diya T20 team se", Timestamp:time.Now().Unix(), UserId:"dhoni007"}
+
+	globals.UserTweet["dhoni007"] = append(globals.UserTweet["dhoni007"], tweet1)
+	globals.UserTweet["dhoni007"] = append(globals.UserTweet["dhoni007"], tweet5)
+	globals.UserTweet["manish.n"] = append(globals.UserTweet["manish.n"], tweet4)
+	globals.UserTweet["chandler"] = append(globals.UserTweet["chandler"], tweet3)
+	globals.UserTweet["srk"] = append(globals.UserTweet["srk"], tweet2)
+
 	return allUsers
 }
 
@@ -123,6 +140,8 @@ func New(cfg *Config) (*Web, error) {
 	mx.HandleFunc("/*", controllers.Signup)
 	mx.HandleFunc("/show-users", auth.AuthenticationMiddleware(controllers.Show_users))
 	mx.HandleFunc("/follow", auth.AuthenticationMiddleware(controllers.Follow_users))
+	mx.HandleFunc("/feed", controllers.Feed)
+	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
 	return ws, nil
 
 }

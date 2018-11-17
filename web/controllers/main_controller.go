@@ -145,7 +145,7 @@ func Follow_users(w http.ResponseWriter, r *http.Request) {
 
 	followers[currUser.UserName] = follows
 	fmt.Println(followers)
-	Show_users(w, r)
+	Feed(w, r)
 }
 
 func getMissing(follows []globals.User, selected []string) (map[globals.User]int){
@@ -162,4 +162,33 @@ func getMissing(follows []globals.User, selected []string) (map[globals.User]int
 		}
 	}
 	return unfollowed
+}
+
+func Feed(w http.ResponseWriter, r *http.Request) {
+	currUser := globals.User{"manish.n"} //should come from session @agam
+	following := GetAllFollowing(currUser)
+	tweets := GetFollowersTweets(following)
+	t, err := template.ParseFiles(WEB_HTML_DIR+"/feed.html")
+	if err != nil{
+		log.Print("500 Iternal Server Error", err)
+	}
+	var c,cookieErr = r.Cookie("token")
+	if cookieErr==nil {
+		http.SetCookie(w,c)
+		type feedObj struct {
+			CurrUser string
+			FollowersNumber int
+			FollowingNumber int
+			Tweets []globals.Tweet
+		}
+
+		feedsObj := feedObj{CurrUser:"manish.n", FollowersNumber:10, FollowingNumber:10, Tweets:tweets}
+		err = t.Execute(w, feedsObj)
+		if err != nil {
+			log.Print("error while executing ", err)
+		}
+	}else {
+		w.WriteHeader(500)
+		//w.Write([]byte("Error"))
+	}
 }

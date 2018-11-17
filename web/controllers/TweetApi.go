@@ -1,8 +1,8 @@
-package web
+package controllers
 
 import (
-	"../globals"
-	"../src/github.com/google/uuid"
+	"../../globals"
+	"../../src/github.com/google/uuid"
 	"sort"
 	"time"
 )
@@ -11,7 +11,7 @@ func getTweets(userId string)[]globals.Tweet{
 	return globals.UserTweet[userId]
 }
 
-func insertTweets(userId string, content string){
+func InsertTweets(userId string, content string) {
 
 	if _ ,ok := globals.UserTweet[userId]; ok{
 
@@ -36,7 +36,7 @@ func insertTweets(userId string, content string){
 }
 
 
-func getFollowersTweets(followings []globals.User)[]globals.Tweet{
+func GetFollowersTweets(followings []globals.User)[]globals.Tweet{
 
 	var followingTweet []globals.Tweet
 	for _,following := range followings{
