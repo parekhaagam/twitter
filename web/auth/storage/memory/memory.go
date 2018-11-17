@@ -5,6 +5,10 @@ import (
 	"time"
 )
 
+/*type MemoryAuth struct {
+
+}
+*/
 type TokenDetails struct {
 	UserId string
 	TimeGenerated time.Time

@@ -70,7 +70,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Print("error while executing ", err)
 	}
-
 }
 
 
@@ -105,7 +104,6 @@ func validateSignup(w http.ResponseWriter, r *http.Request){
 
 }
 
-
 func New(cfg *Config) (*Web, error) {
 	mx := http.NewServeMux()
 	s := &http.Server{
@@ -124,7 +122,7 @@ func New(cfg *Config) (*Web, error) {
 	mx.HandleFunc("/loginValidation", controllers.ValidateLogin(controllers.Show_users))
 	mx.HandleFunc("/*", controllers.Signup)
 	mx.HandleFunc("/show-users", auth.AuthenticationMiddleware(controllers.Show_users))
-	mx.HandleFunc("/follow", controllers.Follow_users)
+	mx.HandleFunc("/follow", auth.AuthenticationMiddleware(controllers.Follow_users))
 	return ws, nil
 
 }
