@@ -58,6 +58,7 @@ func TestTweetPost(t *testing.T){
 	}
 }
 
+
 func TestFollowNewUser(t *testing.T) {
 	currUser := globals.User{"dhoni007"}
 
@@ -103,11 +104,34 @@ func TestFollowNewUser(t *testing.T) {
 
 }
 
+
+func TestTweetTIDConsistency(t *testing.T){
+
+	users := []string{"manish.n", "dhoni007", "srk", "chandler", "manish.n"}
+	tweets:= []string{"test 1", "test 2", "test 3", "test 4", "test 5"}
+	tidMap := make(map[string]string)
+
+	for i := 0; i < 5; i++ {
+
+		go func(userId string, tweet_content string ) {
+		currUser := globals.User{users[i]}
+		tweet_content = tweets[i]
+		TID := InsertTweets(currUser, tweet_content)
+		tidMap[TID] = TID
+
+		}(users[i], tweets[i])
+
+		if len(tidMap) == 5{
+			fmt.Println("Passed : ", "TestTweetTIDConsistency")
+		}else{
+			t.Fatal("Error in TestTweetTIDConsistency")
+		}
+	}
+	}
+
+
 func TestFollowersTweet(t *testing.T)  {
-
-	//currUser := globals.User{"manish.n"}
-
-	fmt.Println("Passed : ", "TestFollowersTweet" )
+	fmt.Println("Passed : ", "TestFollowersTweet")
 }
 
 
