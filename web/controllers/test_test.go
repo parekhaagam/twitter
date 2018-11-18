@@ -1,9 +1,9 @@
 package controllers
 
 import (
+	"../../globals"
 	"fmt"
 	"testing"
-	"../../globals"
 )
 func TestLogin(t *testing.T){
 
@@ -58,7 +58,55 @@ func TestTweetPost(t *testing.T){
 	}
 }
 
+func TestFollowNewUser(t *testing.T) {
+	currUser := globals.User{"dhoni007"}
+
+	//get list of people curr user is following
+	follows := globals.Followers[currUser.UserName]
+	fmt.Println("old Users followed = ", follows)
+	count := 2
+
+	userNewlyFollowed := make([]string,0)
+	addNewUser:
+	for _, user := range globals.AllUsers {
+		fmt.Println("Checking for user = ", user.UserName)
+		for _, userFollowed := range follows {
+			if userFollowed.UserName != user.UserName {
+				userNewlyFollowed = append(userNewlyFollowed, user.UserName)
+				FollowUser(currUser, user.UserName)
+				count--
+			}
+			if count == 0 {
+				break addNewUser
+			}
+		}
+	}
+
+	fmt.Println("New Users followed = ", userNewlyFollowed)
+	follows = globals.Followers[currUser.UserName]
+	count = 0
+	//check if actually followed
+	for _, userName := range userNewlyFollowed{
+		for _, user := range follows {
+			if user.UserName == userName {
+				count++
+				break
+			}
+		}
+	}
+
+	if count == 2 {
+		fmt.Println("Passed : ", "TestFollowNewUser")
+	} else {
+		t.Fatal("Error in TestFollowNewUser")
+	}
+
+}
+
 func TestFollowersTweet(t *testing.T)  {
+
+	//currUser := globals.User{"manish.n"}
+
 	fmt.Println("Passed : ", "TestFollowersTweet" )
 }
 

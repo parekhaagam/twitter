@@ -35,17 +35,6 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func Show_users(w http.ResponseWriter, r *http.Request) {
-	//pageNumber,err := strconv.Atoi(strings.Split(r.URL.Path, "page=")[1])
-	//if err != nil{
-	//	if (pageNumber < 1){
-	//		pageNumber = 1
-	//	}
-	//	fmt.Printf("displayig content for pagge number:%d", pageNumber)
-	//	log.Println("string to interger conversion not happen properly")
-	//}
-	//
-	//// for getting users
-	////users := userRecord.GetUsers(pageNumber, 25)
 	t, err := template.ParseFiles(WEB_HTML_DIR + "/users_to_follow.html")
 	if err != nil {
 		log.Print("500 Iternal Server Error", err)
@@ -67,7 +56,6 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Missing Token"))
-		//w.Write([]byte("Error"))
 	}
 
 }
@@ -96,7 +84,6 @@ func ValidateLogin(next http.HandlerFunc) http.HandlerFunc {
 
 		if UserExist(emailId, password) {
 			fmt.Println("")
-			//w.Write([]byte("valid userid"))
 			r.Header.Set("Cookie", "")
 			var tokenCookie = http.Cookie{Name: "token", Value: auth.GetToken(emailId)}
 			var userIdCookie = http.Cookie{Name: "userId", Value: emailId}
@@ -138,27 +125,10 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var userIdCookie, cookieErr = r.Cookie("userId")
 		if cookieErr == nil {
-			loggedInUserId := userIdCookie.Value
+			currUser := globals.User{userIdCookie.Value}
 			r.ParseForm()
 			selected := r.Form["follow-chkbx"]
-
-			followers := globals.Followers
-			currUser := globals.User{loggedInUserId}
-			follows := make([]globals.User,0)
-
-			//unfollowed := getMissing(follows, selected)
-			//for user, index := range unfollowed {
-			//	fmt.Println("Unfollowed", user.UserName)
-			//	follows = append(follows[:index], follows[index+1:]...)
-			//}
-
-			for _, userName := range selected {
-				follows = append(follows, globals.User{userName})
-			}
-
-
-			followers[currUser.UserName] = follows
-			fmt.Println("User ",currUser.UserName," follows : ",followers)
+			FollowUser(currUser, selected[0:]...)
 			next.ServeHTTP(w, r)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -166,22 +136,6 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 		}
 	})
 
-}
-
-func getMissing(follows []globals.User, selected []string) (map[globals.User]int) {
-	map1 := make(map[string]int)
-	unfollowed := make(map[globals.User]int)
-	for _, userName := range selected {
-		map1[userName] = 1
-	}
-
-	for i, user := range follows {
-		_, ok := map1[user.UserName]
-		if !ok {
-			unfollowed[user] = i
-		}
-	}
-	return unfollowed
 }
 
 func Feed(w http.ResponseWriter, r *http.Request) {

@@ -25,7 +25,7 @@ type loginPage struct {
 	Password string
 }
 
-func initGlobals() {
+func InitGlobals() {
 	globals.Followers = make(map[string][]globals.User)
 	globals.UsersRecord = make(map[string]string)
 	globals.UserTweet = make(map[string][]globals.Tweet)
@@ -132,7 +132,7 @@ func New(cfg *Config) (*Web, error) {
 		srv: s,
 	}
 
-	initGlobals()
+	InitGlobals()
 	mx.HandleFunc("/twitter", controllers.Login)
 	mx.HandleFunc("/signup", controllers.Signup)
 	mx.HandleFunc("/signupValidation", controllers.ValidateSignup(controllers.Show_users))
