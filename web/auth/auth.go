@@ -28,15 +28,11 @@ func GetToken(userId string) (string){
 }
 func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		memory.AuthObject.M.Lock()
-		defer memory.AuthObject.M.Unlock()
-		//fmt.Println("auth called")
 		var token,err = r.Cookie("token")
 		if err==nil {
-			var _, ok= memory.AuthObject.TokenMap[token.Value]
-			if ok {
+			if IsTokenValid(token.Value){
 				next.ServeHTTP(w, r)
-			} else {
+			}else {
 				w.Write([]byte("Invalid Token"))
 			}
 		}else {
@@ -44,4 +40,14 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}
 
 	})
+}
+func IsTokenValid(token string) (bool){
+	memory.AuthObject.M.Lock()
+	defer memory.AuthObject.M.Unlock()
+	var _, ok= memory.AuthObject.TokenMap[token]
+	if ok {
+		return true
+	} else {
+		return false
+	}
 }
