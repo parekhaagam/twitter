@@ -13,7 +13,7 @@ func getTweets(userId string)[]globals.Tweet{
 	return globals.UserTweet[userId]
 }
 
-func InsertTweets(user globals.User, content string) {
+func InsertTweets(user globals.User, content string)string {
 
 	TID := uuid.New().String()
 		for {
@@ -32,7 +32,7 @@ func InsertTweets(user globals.User, content string) {
 		}
 		globals.UserTweet[user.UserName] = append(globals.UserTweet[user.UserName], tmp)
 		fmt.Println("username : ",user.UserName," ",globals.UserTweet[user.UserName])
-
+		return TID
 }
 
 

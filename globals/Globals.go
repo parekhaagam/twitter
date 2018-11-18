@@ -1,5 +1,7 @@
 package globals
 
+import "sync"
+
 //Global Data structure for followers
 //This map will be used through out the application context
 //It is initialised once when the application starts
@@ -30,6 +32,7 @@ type User struct {
 //Key: UserName
 //Value: Password
 var UsersRecord map[string]string
+var UserRecordLock sync.Mutex
 
 // used to identify each tweet
 type Tweet struct {

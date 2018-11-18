@@ -109,7 +109,6 @@ func ValidateLogin(next http.HandlerFunc) http.HandlerFunc {
 			w.Write([]byte("Invalid UserId"))
 		}
 	})
-
 }
 
 func ValidateSignup(next http.HandlerFunc) http.HandlerFunc {

@@ -6,6 +6,9 @@ import (
 
 func UserExist(userName string, password string)bool{
 
+	globals.UserRecordLock.Lock()
+	defer globals.UserRecordLock.Unlock()
+
 	pass, exists := globals.UsersRecord[userName]
 	if exists {
 		if pass != password{
@@ -19,6 +22,10 @@ func UserExist(userName string, password string)bool{
 }
 
 func InsertUser(newUserName string, password string)bool{
+
+	globals.UserRecordLock.Lock()
+	defer globals.UserRecordLock.Unlock()
+
 	if ! UserExist(newUserName, password) {
 		globals.UsersRecord[newUserName] = password
 		globals.AllUsers = append(globals.AllUsers, globals.User{newUserName})
