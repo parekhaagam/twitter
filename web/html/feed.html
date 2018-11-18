@@ -63,8 +63,11 @@ body {
     
     <p><img src="/public/images/icon.png"></p>
     <h2>{{ .CurrUser}}</h2>
-    <!--<p><a href="users_to_follow">Followers:</a>  {{ .FollowersNumber}}</p>-->
-    <p><a href="users_to_follow">Following:</a> {{ .FollowingNumber}}</p>
+
+    <!--<p>Followers:{{ .FollowersNumber}}</p>-->
+    <p>Following: {{ .FollowingNumber}}</p>
+    <p><a href="/show-users">User List</a></p>
+
 </div>
 
 <div class="right">

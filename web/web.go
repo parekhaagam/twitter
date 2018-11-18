@@ -133,7 +133,7 @@ func New(cfg *Config) (*Web, error) {
 	}
 
 	initGlobals()
-	mx.HandleFunc("/", controllers.Login)
+	mx.HandleFunc("/twitter", controllers.Login)
 	mx.HandleFunc("/signup", controllers.Signup)
 	mx.HandleFunc("/signupValidation", controllers.ValidateSignup(controllers.Show_users))
 	mx.HandleFunc("/loginValidation", controllers.ValidateLogin(controllers.Feed))

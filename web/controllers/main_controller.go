@@ -74,7 +74,7 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 
 func Login(w http.ResponseWriter, r *http.Request) {
 
-	t := template.Must(template.ParseFiles("web/html/login.html"))
+	t:= template.Must(template.ParseFiles(WEB_HTML_DIR+"/login.html"))
 	mLoginPage := loginPage{
 		Email:    "EmailId",
 		Password: "password",
@@ -143,21 +143,22 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 			selected := r.Form["follow-chkbx"]
 
 			followers := globals.Followers
-			currUser := globals.User{loggedInUserId} //should come from session @agam
-			follows := GetAllFollowing(currUser)
+			currUser := globals.User{loggedInUserId}
+			follows := make([]globals.User,0)
 
-			unfollowed := getMissing(follows, selected)
-			for user, index := range unfollowed {
-				fmt.Println("Unfollowed", user.UserName)
-				follows = append(follows[:index], follows[index+1:]...)
-			}
+			//unfollowed := getMissing(follows, selected)
+			//for user, index := range unfollowed {
+			//	fmt.Println("Unfollowed", user.UserName)
+			//	follows = append(follows[:index], follows[index+1:]...)
+			//}
 
 			for _, userName := range selected {
 				follows = append(follows, globals.User{userName})
 			}
 
+
 			followers[currUser.UserName] = follows
-			fmt.Println(followers)
+			fmt.Println("User ",currUser.UserName," follows : ",followers)
 			next.ServeHTTP(w, r)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -197,6 +198,7 @@ func Feed(w http.ResponseWriter, r *http.Request) {
 		}
 
 		following := GetAllFollowing(currUser)
+		followingCount := len(following)
 		following = append(following, currUser)
 		tweets := GetFollowersTweets(following)
 		fmt.Println(tweets)
@@ -215,8 +217,7 @@ func Feed(w http.ResponseWriter, r *http.Request) {
 				Tweets          []globals.Tweet
 			}
 
-			followingNumbers := len(globals.Followers["loggedInUser"])
-			feedsObj := feedObj{CurrUser: loggedInUser, FollowersNumber: 0, FollowingNumber: followingNumbers, Tweets: tweets}
+			feedsObj := feedObj{CurrUser: loggedInUser, FollowingNumber: followingCount, Tweets: tweets}
 			err = t.Execute(w, feedsObj)
 			if err != nil {
 				log.Print("error while executing ", err)
