@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"../../globals"
-	"fmt"
 	"github.com/google/uuid"
 	"sort"
 	"strconv"
@@ -30,10 +29,16 @@ func InsertTweets(user globals.User, content string)string {
 			TID: TID,
 			UserId:user.UserName,
 		}
-		globals.UserTweet[user.UserName] = append(globals.UserTweet[user.UserName], tmp)
-		fmt.Println("username : ",user.UserName," ",globals.UserTweet[user.UserName])
+
+		if _, ok := globals.UserTweet[user.UserName]; ok {
+			globals.UserTweet[user.UserName] = append(globals.UserTweet[user.UserName], tmp)
+		}else{
+			twitterTweet := []globals.Tweet{tmp}
+			globals.UserTweet[user.UserName] = twitterTweet
+		}
 		return TID
-}
+		}
+
 
 
 func GetFollowersTweets(followings []globals.User)[]globals.Tweet{

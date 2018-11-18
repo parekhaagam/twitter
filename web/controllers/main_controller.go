@@ -215,7 +215,8 @@ func Feed(w http.ResponseWriter, r *http.Request) {
 				Tweets          []globals.Tweet
 			}
 
-			feedsObj := feedObj{CurrUser: loggedInUser, FollowersNumber: 10, FollowingNumber: 10, Tweets: tweets}
+			followingNumbers := len(globals.Followers["loggedInUser"])
+			feedsObj := feedObj{CurrUser: loggedInUser, FollowersNumber: 0, FollowingNumber: followingNumbers, Tweets: tweets}
 			err = t.Execute(w, feedsObj)
 			if err != nil {
 				log.Print("error while executing ", err)
