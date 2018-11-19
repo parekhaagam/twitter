@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"../../globals"
+	"github.com/parekhaagam/twitter/globals"
 	"github.com/google/uuid"
 	"sort"
 	"strconv"

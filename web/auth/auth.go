@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"../auth/storage/memory"
+	"github.com/parekhaagam/twitter/web/auth/storage/memory"
 	"github.com/google/uuid"
 	"net/http"
 	"time"

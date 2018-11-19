@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"../../globals"
+	"github.com/parekhaagam/twitter/globals"
 	"fmt"
 	"testing"
 )

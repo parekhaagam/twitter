@@ -1,15 +1,15 @@
 package web
 
 import (
-	"./auth"
-	"./controllers"
+	"github.com/parekhaagam/twitter/web/auth"
+	"github.com/parekhaagam/twitter/web/controllers"
 	"context"
 	"fmt"
 	"html/template"
 	"log"
 	"net/http"
 	"strings"
-	"../globals"
+	"github.com/parekhaagam/twitter/globals"
 )
 
 type Web struct {

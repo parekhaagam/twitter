@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"../../globals"
-	"../auth"
+	"github.com/parekhaagam/twitter/globals"
+	"github.com/parekhaagam/twitter/web/auth"
 	"fmt"
 	"html/template"
 	"log"

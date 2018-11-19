@@ -1,6 +1,6 @@
 package controllers
 
-import "../../globals"
+import "github.com/parekhaagam/twitter/globals"
 func FollowUser(follower globals.User, selectedUserNames ...string) {
 	follows := make([]globals.User, 0)
 
