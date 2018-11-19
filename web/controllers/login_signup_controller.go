@@ -9,11 +9,8 @@ func UserExist(userName string, password string)bool{
 	globals.UserRecordLock.Lock()
 	defer globals.UserRecordLock.Unlock()
 
-	pass, exists := globals.UsersRecord[userName]
+	_, exists := globals.UsersRecord[userName]
 	if exists {
-		if pass != password{
-			return false
-		}
 		return true
 	}else {
 		return false
