@@ -1,0 +1,10 @@
+To run this project :
+navigate to <Project>/cmd/main/
+
+Then run the below command
+
+go build web.go
+
+This command will download all the dependencies (currently just 1 used for generating UUID)
+
+This command will host a webpage on http://localhost:8090/twitter endpoint
