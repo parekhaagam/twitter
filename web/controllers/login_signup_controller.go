@@ -23,8 +23,8 @@ func UserExist(userName string, password string)bool{
 
 func InsertUser(newUserName string, password string)bool{
 
-	globals.UserRecordLock.Lock()
-	defer globals.UserRecordLock.Unlock()
+	//globals.UserRecordLock.Lock()
+	//defer globals.UserRecordLock.Unlock()
 
 	if ! UserExist(newUserName, password) {
 		globals.UsersRecord[newUserName] = password
