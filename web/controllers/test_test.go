@@ -59,49 +59,27 @@ func TestTweetPost(t *testing.T){
 }
 
 
-func TestFollowNewUser(t *testing.T) {
-	currUser := globals.User{"dhoni007"}
-
-	//get list of people curr user is following
-	follows := globals.Followers[currUser.UserName]
-	fmt.Println("old Users followed = ", follows)
-	count := 2
-
-	userNewlyFollowed := make([]string,0)
-	addNewUser:
+func TestFollowAllUser(t *testing.T) {
+	globals.InitGlobals()
+	currUser := globals.User{"manish.n"}
+	fmt.Println(globals.AllUsers)
+	count := len(globals.AllUsers)
+	list := make([]string,0)
 	for _, user := range globals.AllUsers {
-		fmt.Println("Checking for user = ", user.UserName)
-		for _, userFollowed := range follows {
-			if userFollowed.UserName != user.UserName {
-				userNewlyFollowed = append(userNewlyFollowed, user.UserName)
-				FollowUser(currUser, user.UserName)
-				count--
-			}
-			if count == 0 {
-				break addNewUser
-			}
+		if user.UserName != currUser.UserName {
+			fmt.Println("Following ", user.UserName)
+			list = append(list, user.UserName)
 		}
 	}
-
-	fmt.Println("New Users followed = ", userNewlyFollowed)
-	follows = globals.Followers[currUser.UserName]
-	count = 0
-	//check if actually followed
-	for _, userName := range userNewlyFollowed{
-		for _, user := range follows {
-			if user.UserName == userName {
-				count++
-				break
-			}
-		}
-	}
-
-	if count == 2 {
+	FollowUser(currUser, list[0:]...)
+	follows := globals.Followers[currUser.UserName]
+	followCount := len(follows)
+	fmt.Println(follows)
+	if followCount == count-1 {
 		fmt.Println("Passed : ", "TestFollowNewUser")
 	} else {
 		t.Fatal("Error in TestFollowNewUser")
 	}
-
 }
 
 
@@ -127,11 +105,31 @@ func TestTweetTIDConsistency(t *testing.T){
 			t.Fatal("Error in TestTweetTIDConsistency")
 		}
 	}
+}
+
+
+
+func TestFollowersTweet(t *testing.T) {
+	globals.InitGlobals()
+	currUser := globals.User{"manish.n"}
+
+	FollowUser(currUser, "dhoni007", "srk", "chandler")
+
+	following := globals.Followers[currUser.UserName]
+	tweets := GetFollowersTweets(following)
+	for _, tweet := range tweets {
+		userFound := false
+		for _, user := range following {
+			if tweet.UserId == user.UserName {
+				userFound = true
+				break
+			}
+		}
+		if !userFound {
+			t.Fatal("Fail: TestFollowersTweet")
+			break
+		}
 	}
-
-
-func TestFollowersTweet(t *testing.T)  {
-	fmt.Println("Passed : ", "TestFollowersTweet")
 }
 
 
