@@ -74,7 +74,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func ValidateLogin(next http.HandlerFunc) http.HandlerFunc {
+func ValidateLogin(destURL string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		r.ParseForm()
@@ -91,14 +91,14 @@ func ValidateLogin(next http.HandlerFunc) http.HandlerFunc {
 			http.SetCookie(w, &userIdCookie)
 			r.AddCookie(&tokenCookie)
 			r.AddCookie(&userIdCookie)
-			next.ServeHTTP(w, r)
+			http.Redirect(w, r, destURL, http.StatusSeeOther)
 		} else {
 			w.Write([]byte("Invalid UserId"))
 		}
 	})
 }
 
-func ValidateSignup(next http.HandlerFunc) http.HandlerFunc {
+func ValidateSignup(destURL string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		r.ParseForm()
@@ -113,7 +113,7 @@ func ValidateSignup(next http.HandlerFunc) http.HandlerFunc {
 			http.SetCookie(w, &userIdCookie)
 			r.AddCookie(&tokenCookie)
 			r.AddCookie(&userIdCookie)
-			next.ServeHTTP(w, r)
+			http.Redirect(w, r, destURL, http.StatusSeeOther)
 		} else {
 			w.Write([]byte("Invalid userid"))
 		}
@@ -129,7 +129,8 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 			r.ParseForm()
 			selected := r.Form["follow-chkbx"]
 			FollowUser(currUser, selected[0:]...)
-			next.ServeHTTP(w, r)
+			http.Redirect(w, r, "/feed", http.StatusSeeOther)
+			//next.ServeHTTP(w, r)
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte("Missing UserId"))
