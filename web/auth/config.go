@@ -1,7 +1,6 @@
 package auth
 
-type Configuration struct {
-	timeout int
+type Config struct {
+	HTTPAddr string
+	ServerName string
 }
-
-var Config = Configuration{10}

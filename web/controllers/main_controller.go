@@ -1,13 +1,16 @@
 package controllers
 
 import (
-	"github.com/parekhaagam/twitter/globals"
-	"github.com/parekhaagam/twitter/web/auth"
+	"context"
 	"fmt"
+	pb "github.com/parekhaagam/twitter/contracts/authentication"
+	"github.com/parekhaagam/twitter/globals"
+	"google.golang.org/grpc"
 	"html/template"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const WEB_HTML_DIR = "web/html"
@@ -85,7 +88,8 @@ func ValidateLogin(destURL string) http.HandlerFunc {
 		if UserExist(emailId, password) {
 			fmt.Println("")
 			r.Header.Set("Cookie", "")
-			var tokenCookie = http.Cookie{Name: "token", Value: auth.GetToken(emailId)}
+			token:=GetToken(emailId)
+			var tokenCookie = http.Cookie{Name: "token", Value: token}
 			var userIdCookie = http.Cookie{Name: "userId", Value: emailId}
 			http.SetCookie(w, &tokenCookie)
 			http.SetCookie(w, &userIdCookie)
@@ -107,7 +111,8 @@ func ValidateSignup(destURL string) http.HandlerFunc {
 
 		if InsertUser(emailId, password) {
 			r.Header.Set("Cookie", "")
-			var tokenCookie = http.Cookie{Name: "token", Value: auth.GetToken(emailId)}
+			token:=GetToken(emailId)
+			var tokenCookie = http.Cookie{Name: "token", Value: token}
 			var userIdCookie = http.Cookie{Name: "userId", Value: emailId}
 			http.SetCookie(w, &tokenCookie)
 			http.SetCookie(w, &userIdCookie)
@@ -185,4 +190,21 @@ func Feed(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte("Missing UserId"))
 	}
+}
+
+func GetToken(userid string)  string{
+	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+	c := pb.NewAuthClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	r, err := c.GetToken(ctx, &pb.GetTokenRequest{Userid: userid})
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+	}
+	return r.Token;
+
 }
