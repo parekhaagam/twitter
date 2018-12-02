@@ -168,12 +168,12 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 			defer cancel()
 
 			usersList := selected[0:]
-			 followUserResponse,err := c.FollowUser(ctx, &spb.FollowUserRequest{UserName:userIdCookie.Value, UserNames:usersList})
+			followUserResponse,err := c.FollowUser(ctx, &spb.FollowUserRequest{UserName:userIdCookie.Value, UserNames:usersList})
 			if err != nil {
 				log.Fatalf("could not greet: %v", err)
 			}
 
-			 fmt.Println(followUserResponse.Status)
+			fmt.Println(followUserResponse.Status)
 
 			//FollowUser(currUser, selected[0:]...)
 			http.Redirect(w, r, "/feed", http.StatusSeeOther)
@@ -236,11 +236,11 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 			tweets = append(
 				tweets,
 				globals.Tweet{
-				UserId:follwerTweet.UserId,
-				TID:follwerTweet.TID,
-				Timestamp:follwerTweet.Timestamp,
-				Content:follwerTweet.Content,
-				TimeMessage:follwerTweet.TimeMessage})
+					UserId:follwerTweet.UserId,
+					TID:follwerTweet.TID,
+					Timestamp:follwerTweet.Timestamp,
+					Content:follwerTweet.Content,
+					TimeMessage:follwerTweet.TimeMessage})
 		}
 		followingCount := getFollwerResponse.FollowingNumber
 		t, err := template.ParseFiles(WEB_HTML_DIR + "/feed.html")

@@ -62,7 +62,7 @@ func getToken(userId string) (string)  {
 		//memory.AuthObject.M.Unlock()
 		return val.Token
 	}else {
-		var token = uuid.New().String()
+		var token = uuid. New().String()
 		var tokenDetailsObject = memory.TokenDetails{UserId: in.Userid,Token: token,TimeGenerated:time.Now()}
 		memory.AuthObject.LogedInUserMap[in.Userid] = tokenDetailsObject
 		memory.AuthObject.TokenMap[token] = tokenDetailsObject;

@@ -26,7 +26,7 @@ func (a *StorageServerImpl)InsertTweets(ctx context.Context, in *pb.InsertTweetR
 	user := globals.User{in.User.UserName}
 	tid := InsertTweets(user, in.Content)
 	return &pb.InsertTweetReply{TID:tid},nil
-	}
+}
 
 
 func (a *StorageServerImpl)GetFollowersTweets(ctx context.Context, in *pb.GetFollowersRequest)(*pb.GetFollowersReply, error){
@@ -94,4 +94,3 @@ func (w *StorageServer) Start() error {
 func (w *StorageServer) Shutdown(ctx context.Context) error {
 	return w.srv.Shutdown(ctx)
 }
-
