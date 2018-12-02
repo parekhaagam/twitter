@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/parekhaagam/twitter/contracts/authentication"
+	spb "github.com/parekhaagam/twitter/contracts/storage"
 	"github.com/parekhaagam/twitter/globals"
 	"google.golang.org/grpc"
 	"html/template"
@@ -48,7 +49,14 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 		if cookieErr == nil {
 			loggedInUserId := userIdCookie.Value
 			http.SetCookie(w, tokenCookie);
-			err = t.Execute(w, Get_all_users(loggedInUserId))
+
+
+
+
+
+
+			var userList UserList
+			err = t.Execute(w, userList)
 			if err != nil {
 				log.Print("error while executing ", err)
 			}
@@ -144,36 +152,81 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 
 }
 
-func Feed(w http.ResponseWriter, r *http.Request) {
-	var userIdCookie, cookieErr = r.Cookie("userId")
+func Feed(w http.ResponseWriter, httpRequest *http.Request) {
+	var userIdCookie, cookieErr = httpRequest.Cookie("userId")
 	if cookieErr == nil {
 		loggedInUser := userIdCookie.Value
-		currUser := globals.User{loggedInUser} //should come from session @agam
+		//currUser := globals.User{loggedInUser} //should come from session @agam
 
-		r.ParseForm()
-		tweet_content := r.Form["tweet_box"]
+		httpRequest.ParseForm()
+		tweet_content := httpRequest.Form["tweet_box"]
 		if len(tweet_content) > 0 {
 			fmt.Println(tweet_content[0])
-			InsertTweets(currUser, tweet_content[0])
+			//InsertTweets(currUser, tweet_content[0])
+
+			conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure())
+			if err != nil {
+				log.Fatalf("did not connect: %v", err)
+			}
+			defer conn.Close()
+			c := spb.NewStorageClient(conn)
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			insertTweetResponse, err := c.InsertTweets(ctx, &spb.InsertTweetRequest{User:&spb.User{UserName:""}, Content:tweet_content[0]})
+			if err != nil {
+				log.Fatalf("could not greet: %v", err)
+			}
+			fmt.Println(insertTweetResponse.TID)
+
 		}
 
-		following := GetAllFollowing(currUser)
+		conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure())
+		if err != nil {
+			log.Fatalf("did not connect: %v", err)
+		}
+		defer conn.Close()
+		client := spb.NewStorageClient(conn)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		users:= &spb.User{UserName:loggedInUser}
+		getFollwerResponse, err := client.GetFollowersTweets(ctx, &spb.GetFollowersRequest{User:users})
+		if err != nil {
+			log.Fatalf("could not greet: %v", err)
+		}
+		fmt.Println(getFollwerResponse.Tweets)
+
+		var tweets []globals.Tweet
+
+		for _,follwerTweet := range getFollwerResponse.Tweets{
+			tweets = append(
+				tweets,
+				globals.Tweet{
+				UserId:follwerTweet.UserId,
+				TID:follwerTweet.TID,
+				Timestamp:follwerTweet.Timestamp,
+				Content:follwerTweet.Content,
+				TimeMessage:follwerTweet.TimeMessage})
+		}
+		followingCount := getFollwerResponse.FollowingNumber
+		/*following := GetAllFollowing(currUser)
 		followingCount := len(following)
 		following = append(following, currUser)
 		tweets := GetFollowersTweets(following)
-		fmt.Println(tweets)
+		fmt.Println(tweets)*/
 
 		t, err := template.ParseFiles(WEB_HTML_DIR + "/feed.html")
 		if err != nil {
 			log.Print("500 Iternal Server Error", err)
 		}
-		c, cookieErr := r.Cookie("token")
+		c, cookieErr := httpRequest.Cookie("token")
 		if cookieErr == nil {
 			http.SetCookie(w, c)
 			type feedObj struct {
 				CurrUser        string
 				FollowersNumber int
-				FollowingNumber int
+				FollowingNumber string
 				Tweets          []globals.Tweet
 			}
 

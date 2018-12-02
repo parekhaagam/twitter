@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+/*
+
+protoc -I . authentication/auth.proto --go_out=plugins=grpc:.
+*/
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.storage";
+option java_outer_classname = "StorageProto";
+
+
+package storage;
+
+// The greeting service definition.
+service Storage{
+
+    rpc InsertTweets(InsertTweetRequest) returns (InsertTweetReply){}
+    rpc GetFollowersTweets(GetFollowersRequest) returns (GetFollowersReply){}
+
+    rpc GetAllUsers(GetUsersRequest) returns (GetUsersResponse){}
+}
+
+message User{
+    string UserName = 1;
+}
+
+message InsertTweetRequest{
+    User user = 1;
+    string content =2;
+}
+
+message InsertTweetReply{
+    string TID = 1;
+}
+
+message GetFollowersRequest{
+    User user = 1;
+}
+
+message Tweet {
+    string UserId = 1;
+    string TID = 2;
+    int64 Timestamp = 3;
+    string Content = 4;
+    string TimeMessage = 5;
+}
+
+message GetFollowersReply{
+    repeated Tweet tweets = 1;
+    string followingNumber = 2;
+}
+
+message userFollowed {
+    string UserName = 1;
+    bool Isfollowed = 2;
+}
+
+//Used for "Search Users" Page
+message UserList{
+    repeated userFollowed List = 1;
+    bool NextPage = 2;
+}
+
+message GetUsersRequest{
+    string loggedInUserId = 1;
+
+}
+
+message GetUsersResponse{
+    repeated User users = 1;
+    bool NextPage = 2;
+}
