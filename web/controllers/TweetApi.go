@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"github.com/parekhaagam/twitter/globals"
 	"github.com/google/uuid"
 	"sort"
@@ -14,15 +15,19 @@ func getTweets(userId string)[]globals.Tweet{
 
 func InsertTweets(user globals.User, content string)string {
 
+
 	TID := uuid.New().String()
+	fmt.Println(TID)
+
 		for {
 			if _, exists := globals.TweetIdStored[TID]; exists {
 				TID = uuid.New().String()
+
 			} else {
 				break
 			}
 		}
-
+		globals.TweetIdStored[TID] = TID
 		tmp := globals.Tweet{
 			Content:content,
 			Timestamp: time.Now().Unix(),

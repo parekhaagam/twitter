@@ -29,15 +29,7 @@ func TestSignUp(t *testing.T){
 	}
 }
 
-func TestLoginConcurrent(t *testing.T){
-	fmt.Print("Passed : ","TestLoginConcurrent")
-}
-
-func TestSignUpConcurrent(t *testing.T){
-	fmt.Print("Passed : ","TestSignUpConcurrent")
-}
-
-/*func TestTweetPost(t *testing.T){
+func TestTweetPost(t *testing.T){
 	globals.InitGlobals()
 	currUser := globals.User{"manish.n"}
 	tweet_content := "testing tweet"
@@ -51,13 +43,14 @@ func TestSignUpConcurrent(t *testing.T){
 		}
 	}
 
+	print(exists)
 	if exists && tweetFound{
 		fmt.Println("Passed : ", "TestTweetPost")
 	}else{
 		t.Fatal("Error in testTweetPost")
 	}
 }
-*/
+
 
 func TestFollowAllUser(t *testing.T) {
 	globals.InitGlobals()
@@ -71,7 +64,7 @@ func TestFollowAllUser(t *testing.T) {
 			list = append(list, user.UserName)
 		}
 	}
-	FollowUser(currUser, list[0:]...)
+	FollowUser(currUser, list[0:])
 	follows := globals.Followers[currUser.UserName]
 	followCount := len(follows)
 	fmt.Println(follows)
@@ -82,38 +75,12 @@ func TestFollowAllUser(t *testing.T) {
 	}
 }
 
-
-/*func TestTweetTIDConsistency(t *testing.T){
-	globals.InitGlobals()
-	users := []string{"manish.n", "dhoni007", "srk", "chandler", "manish.n"}
-	tweets:= []string{"test 1", "test 2", "test 3", "test 4", "test 5"}
-	tidMap := make(map[string]string)
-
-	for i := 0; i < 5; i++ {
-
-		go func(userId string, tweet_content string ) {
-		currUser := globals.User{users[i]}
-		tweet_content = tweets[i]
-		TID := InsertTweets(currUser, tweet_content)
-		tidMap[TID] = TID
-
-		}(users[i], tweets[i])
-
-		if len(tidMap) == 5{
-			fmt.Println("Passed : ", "TestTweetTIDConsistency")
-		}else{
-			t.Fatal("Error in TestTweetTIDConsistency")
-		}
-	}
-}*/
-
-
-
 func TestFollowersTweet(t *testing.T) {
 	globals.InitGlobals()
 	currUser := globals.User{"manish.n"}
 
-	FollowUser(currUser, "dhoni007", "srk", "chandler")
+	selectedUserNames := []string{"dhoni007", "srk", "chandler"}
+	FollowUser(currUser, selectedUserNames)
 
 	following := globals.Followers[currUser.UserName]
 	tweets := GetFollowersTweets(following)

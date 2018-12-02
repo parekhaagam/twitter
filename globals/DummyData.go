@@ -9,6 +9,7 @@ func InitGlobals() {
 	Followers = make(map[string][]User)
 	UsersRecord = make(map[string]string)
 	UserTweet = make(map[string][]Tweet)
+	TweetIdStored = make(map[string]string)
 	AllUsers = insertDummies()
 }
 
