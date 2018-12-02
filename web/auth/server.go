@@ -57,14 +57,14 @@ func (w *AuthServer) Shutdown(ctx context.Context) error {
 func getToken(userId string) (string)  {
 	memory.AuthObject.M.Lock()
 	defer memory.AuthObject.M.Unlock()
-	var val,ok = memory.AuthObject.LogedInUserMap[in.Userid]
+	var val,ok = memory.AuthObject.LogedInUserMap[userId]
 	if ok {
 		//memory.AuthObject.M.Unlock()
 		return val.Token
 	}else {
 		var token = uuid. New().String()
-		var tokenDetailsObject = memory.TokenDetails{UserId: in.Userid,Token: token,TimeGenerated:time.Now()}
-		memory.AuthObject.LogedInUserMap[in.Userid] = tokenDetailsObject
+		var tokenDetailsObject = memory.TokenDetails{UserId: userId,Token: token,TimeGenerated:time.Now()}
+		memory.AuthObject.LogedInUserMap[userId] = tokenDetailsObject
 		memory.AuthObject.TokenMap[token] = tokenDetailsObject;
 		return val.Token
 	}
