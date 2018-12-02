@@ -7,7 +7,7 @@ import (
 )
 
 func TestAuthGetToken(t *testing.T)  {
-	var  token  = GetToken("abc@gmail.com")
+	var  token  = getToken("abc@gmail.com")
 	if token!="" {
 		fmt.Println("Passed : ","TestAuthGetToken")
 	}else {
@@ -21,7 +21,7 @@ func TestAuthGetTokenConcurrent(t *testing.T)  {
 		wg.Add(1)
 		go func(userId string) {
 			defer wg.Done()
-			var  token  = GetToken(userId)
+			var  token  = getToken(userId)
 			set[token] = userId
 		}("def@gmail.com")
 	}
@@ -34,7 +34,7 @@ func TestAuthGetTokenConcurrent(t *testing.T)  {
 	}
 }
 func TestAuthAuthenticateToken(t *testing.T)  {
-	var  token  = GetToken("abc@gmail.com")
+	var  token  = getToken("abc@gmail.com")
 	if token!="" {
 		if !IsTokenValid(token){
 			t.Fatal("Error : Token not authenticated properly!")
@@ -45,7 +45,7 @@ func TestAuthAuthenticateToken(t *testing.T)  {
 	fmt.Println("Passed : ","TestAuthAuthenticateToken")
 }
 func TestAuthAuthenticateTokenConcurrent(t *testing.T)  {
-	var  token  = GetToken("abc@gmail.com")
+	var  token  = getToken("abc@gmail.com")
 	set := make(map[string]int)
 	if token!="" {
 		var wg sync.WaitGroup

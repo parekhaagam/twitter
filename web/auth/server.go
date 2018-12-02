@@ -23,19 +23,8 @@ type AuthServer struct {
 }
 type AuthServerImpl struct{}
 func (a *AuthServerImpl)GetToken(ctx context.Context, in *pb.GetTokenRequest) (*pb.GetTokenReply, error){
-	memory.AuthObject.M.Lock()
-	defer memory.AuthObject.M.Unlock()
-	var val,ok = memory.AuthObject.LogedInUserMap[in.Userid]
-	if ok {
-		//memory.AuthObject.M.Unlock()
-		return &pb.GetTokenReply{Token:val.Token},nil
-	}else {
-		var token = uuid.New().String()
-		var tokenDetailsObject = memory.TokenDetails{UserId: in.Userid,Token: token,TimeGenerated:time.Now()}
-		memory.AuthObject.LogedInUserMap[in.Userid] = tokenDetailsObject
-		memory.AuthObject.TokenMap[token] = tokenDetailsObject;
-		return &pb.GetTokenReply{Token:val.Token},nil
-	}
+	token := getToken(in.Userid)
+	return &pb.GetTokenReply{Token:token},nil
 }
 
 func (a *AuthServerImpl) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*pb.AuthenticateReply, error){
@@ -64,4 +53,20 @@ func (w *AuthServer) Start() error {
 
 func (w *AuthServer) Shutdown(ctx context.Context) error {
 	return w.srv.Shutdown(ctx)
+}
+func getToken(userId string) (string)  {
+	memory.AuthObject.M.Lock()
+	defer memory.AuthObject.M.Unlock()
+	var val,ok = memory.AuthObject.LogedInUserMap[in.Userid]
+	if ok {
+		//memory.AuthObject.M.Unlock()
+		return val.Token
+	}else {
+		var token = uuid.New().String()
+		var tokenDetailsObject = memory.TokenDetails{UserId: in.Userid,Token: token,TimeGenerated:time.Now()}
+		memory.AuthObject.LogedInUserMap[in.Userid] = tokenDetailsObject
+		memory.AuthObject.TokenMap[token] = tokenDetailsObject;
+		return val.Token
+	}
+
 }
