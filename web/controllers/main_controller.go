@@ -15,14 +15,14 @@ import (
 )
 
 const WEB_HTML_DIR = "web/html"
-
+var authClient pb.AuthClient
 type loginPage struct {
 	Email    string
 	Password string
 }
 
 var limit = 25
-
+var storageClient spb.StorageClient
 func Signup(w http.ResponseWriter, r *http.Request) {
 	t, err := template.ParseFiles(WEB_HTML_DIR + "/signup.html")
 	if err != nil {
@@ -50,16 +50,11 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 			loggedInUserId := userIdCookie.Value
 			http.SetCookie(w, tokenCookie);
 
-			conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure())
-			if err != nil {
-				log.Fatalf("did not connect: %v", err)
-			}
-			defer conn.Close()
-			c := spb.NewStorageClient(conn)
+			tweetClient := getStorageClient()
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
 
-			getUsersResponse, err := c.GetAllUsers(ctx, &spb.GetUsersRequest{LoggedInUserId:loggedInUserId})
+			getUsersResponse, err := tweetClient.GetAllUsers(ctx, &spb.GetUsersRequest{LoggedInUserId:loggedInUserId})
 			if err != nil {
 				log.Fatalf("could not greet: %v", err)
 			}
@@ -158,17 +153,12 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 			selected := r.Form["follow-chkbx"]
 
 
-			conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure())
-			if err != nil {
-				log.Fatalf("did not connect: %v", err)
-			}
-			defer conn.Close()
-			c := spb.NewStorageClient(conn)
+			tweetClient := getStorageClient()
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
 
 			usersList := selected[0:]
-			followUserResponse,err := c.FollowUser(ctx, &spb.FollowUserRequest{UserName:userIdCookie.Value, UserNames:usersList})
+			followUserResponse,err := tweetClient.FollowUser(ctx, &spb.FollowUserRequest{UserName:userIdCookie.Value, UserNames:usersList})
 			if err != nil {
 				log.Fatalf("could not greet: %v", err)
 			}
@@ -197,16 +187,11 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 			fmt.Println(tweet_content[0])
 			//InsertTweets(currUser, tweet_content[0])
 
-			conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure())
-			if err != nil {
-				log.Fatalf("did not connect: %v", err)
-			}
-			defer conn.Close()
-			c := spb.NewStorageClient(conn)
+			tweetClient := getStorageClient()
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
 
-			insertTweetResponse, err := c.InsertTweets(ctx, &spb.InsertTweetRequest{User:&spb.User{UserName:loggedInUser}, Content:tweet_content[0]})
+			insertTweetResponse, err := tweetClient.InsertTweets(ctx, &spb.InsertTweetRequest{User:&spb.User{UserName:loggedInUser}, Content:tweet_content[0]})
 			if err != nil {
 				log.Fatalf("could not greet: %v", err)
 			}
@@ -214,17 +199,11 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 
 		}
 
-		conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure())
-		if err != nil {
-			log.Fatalf("did not connect: %v", err)
-		}
-		defer conn.Close()
-		client := spb.NewStorageClient(conn)
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-
+		tweetClient := getStorageClient()
 		users:= &spb.User{UserName:loggedInUser}
-		getFollwerResponse, err := client.GetFollowersTweets(ctx, &spb.GetFollowersRequest{User:users})
+		getFollwerResponse, err := tweetClient.GetFollowersTweets(ctx, &spb.GetFollowersRequest{User:users})
 		if err != nil {
 			log.Fatalf("could not greet: %v", err)
 		}
@@ -273,18 +252,33 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 }
 
 func GetToken(userid string)  string{
-	conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer conn.Close()
-	c := pb.NewAuthClient(conn)
+	authenticationClient := getAuthServerConnection()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	r, err := c.GetToken(ctx, &pb.GetTokenRequest{Userid: userid})
+	r, err := authenticationClient.GetToken(ctx, &pb.GetTokenRequest{Userid: userid})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
 	return r.Token;
 
+}
+func getStorageClient() (spb.StorageClient){
+	if storageClient == nil {
+		conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure())
+		if err != nil {
+			log.Fatalf("did not connect: %v", err)
+		}
+		storageClient = spb.NewStorageClient(conn)
+	}
+	return storageClient
+}
+func getAuthServerConnection() (pb.AuthClient){
+	if  authClient == nil{
+		conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
+		if err != nil {
+			log.Fatalf("did not connect: %v", err)
+		}
+		authClient = pb.NewAuthClient(conn)
+	}
+	return authClient
 }

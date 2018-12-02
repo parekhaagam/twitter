@@ -24,7 +24,7 @@ type loginPage struct {
 	Email    string
 	Password string
 }
-
+var authClient pb.AuthClient
 func signup(w http.ResponseWriter, r *http.Request) {
 
 
@@ -124,15 +124,10 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token,err := r.Cookie("token")
 		if err==nil {
-			conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
-			if err != nil {
-				log.Fatalf("did not connect: %v", err)
-			}
-			defer conn.Close()
-			c := pb.NewAuthClient(conn)
+			authenticationClient := getAuthServerConnection()
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
-			reply, err := c.Authenticate(ctx, &pb.AuthenticateRequest{Token:token.Value })
+			reply, err := authenticationClient.Authenticate(ctx, &pb.AuthenticateRequest{Token:token.Value })
 			if err != nil {
 				log.Fatalf("could not greet: %v", err)
 			}
@@ -147,4 +142,15 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 
 	})
+}
+
+func getAuthServerConnection() (pb.AuthClient){
+	if  authClient == nil{
+		conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
+		if err != nil {
+			log.Fatalf("did not connect: %v", err)
+		}
+		authClient = pb.NewAuthClient(conn)
+	}
+	return authClient
 }
