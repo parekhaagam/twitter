@@ -50,13 +50,28 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 			loggedInUserId := userIdCookie.Value
 			http.SetCookie(w, tokenCookie);
 
+			conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure())
+			if err != nil {
+				log.Fatalf("did not connect: %v", err)
+			}
+			defer conn.Close()
+			c := spb.NewStorageClient(conn)
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			getUsersResponse, err := c.GetAllUsers(ctx, &spb.GetUsersRequest{LoggedInUserId:loggedInUserId})
+			if err != nil {
+				log.Fatalf("could not greet: %v", err)
+			}
 
 
+			var users []UserFollowed
 
+			for _,eachUserList := range getUsersResponse.Users{
+				users = append(users, UserFollowed{eachUserList.UserName, eachUserList.Isfollowed})
+			}
 
-
-			var userList UserList
-			err = t.Execute(w, userList)
+			err = t.Execute(w, UserList{users, false})
 			if err != nil {
 				log.Print("error while executing ", err)
 			}
@@ -138,10 +153,29 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var userIdCookie, cookieErr = r.Cookie("userId")
 		if cookieErr == nil {
-			currUser := globals.User{userIdCookie.Value}
+			//currUser := globals.User{userIdCookie.Value}
 			r.ParseForm()
 			selected := r.Form["follow-chkbx"]
-			FollowUser(currUser, selected[0:]...)
+
+
+			conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure())
+			if err != nil {
+				log.Fatalf("did not connect: %v", err)
+			}
+			defer conn.Close()
+			c := spb.NewStorageClient(conn)
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			usersList := selected[0:]
+			 followUserResponse,err := c.FollowUser(ctx, &spb.FollowUserRequest{UserName:userIdCookie.Value, UserNames:usersList})
+			if err != nil {
+				log.Fatalf("could not greet: %v", err)
+			}
+
+			 fmt.Println(followUserResponse.Status)
+
+			//FollowUser(currUser, selected[0:]...)
 			http.Redirect(w, r, "/feed", http.StatusSeeOther)
 			//next.ServeHTTP(w, r)
 		} else {
@@ -149,7 +183,6 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 			w.Write([]byte("Missing UserId"))
 		}
 	})
-
 }
 
 func Feed(w http.ResponseWriter, httpRequest *http.Request) {
@@ -173,7 +206,7 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer cancel()
 
-			insertTweetResponse, err := c.InsertTweets(ctx, &spb.InsertTweetRequest{User:&spb.User{UserName:""}, Content:tweet_content[0]})
+			insertTweetResponse, err := c.InsertTweets(ctx, &spb.InsertTweetRequest{User:&spb.User{UserName:loggedInUser}, Content:tweet_content[0]})
 			if err != nil {
 				log.Fatalf("could not greet: %v", err)
 			}
@@ -210,12 +243,6 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 				TimeMessage:follwerTweet.TimeMessage})
 		}
 		followingCount := getFollwerResponse.FollowingNumber
-		/*following := GetAllFollowing(currUser)
-		followingCount := len(following)
-		following = append(following, currUser)
-		tweets := GetFollowersTweets(following)
-		fmt.Println(tweets)*/
-
 		t, err := template.ParseFiles(WEB_HTML_DIR + "/feed.html")
 		if err != nil {
 			log.Print("500 Iternal Server Error", err)

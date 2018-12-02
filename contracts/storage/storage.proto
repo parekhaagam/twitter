@@ -19,6 +19,7 @@ service Storage{
     rpc GetFollowersTweets(GetFollowersRequest) returns (GetFollowersReply){}
 
     rpc GetAllUsers(GetUsersRequest) returns (GetUsersResponse){}
+    rpc FollowUser(FollowUserRequest) returns (FollowUserResponse){}
 }
 
 message User{
@@ -63,11 +64,21 @@ message UserList{
 }
 
 message GetUsersRequest{
-    string loggedInUserId = 1;
-
+    string LoggedInUserId = 1;
 }
 
+
 message GetUsersResponse{
-    repeated User users = 1;
+    repeated userFollowed users = 1;
     bool NextPage = 2;
+}
+
+message FollowUserRequest{
+    string userName = 1;
+    repeated string userNames =2;
+}
+
+message FollowUserResponse{
+
+    bool status = 1;
 }

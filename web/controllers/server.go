@@ -52,14 +52,22 @@ func (a *StorageServerImpl) GetAllUsers(ctx context.Context, in *pb.GetUsersRequ
 
 
 	userLists := Get_all_users(in.LoggedInUserId)
-	var users []*pb.User
+
+	var users []*pb.UserFollowed
 	for _,eachUser := range userLists.List{
-		users = append(users, &pb.User{UserName:eachUser.UserName})
+		a:= &pb.UserFollowed{UserName:eachUser.UserName, Isfollowed:eachUser.Isfollowed}
+		users = append(users, a)
 	}
 
 	return &pb.GetUsersResponse{Users:users, NextPage:userLists.NextPage },nil
 }
 
+
+func (a *StorageServerImpl) FollowUser(ctx context.Context, in *pb.FollowUserRequest) (*pb.FollowUserResponse, error) {
+
+	FollowUser(globals.User{in.UserName}, in.UserNames)
+	return &pb.FollowUserResponse{Status:true},nil
+}
 
 
 func NewStorageServer(cfg *Config) (error) {
