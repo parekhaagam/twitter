@@ -1,6 +1,7 @@
 package web
 
 import (
+	"github.com/parekhaagam/twitter/constants"
 	"github.com/parekhaagam/twitter/web/controllers"
 	"context"
 	"fmt"
@@ -61,9 +62,9 @@ func validateLogin(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 
 	emailId := strings.Join(r.Form["EmailId"], "")
-	password := strings.Join(r.Form["password"], "")
+	//password := strings.Join(r.Form["password"], "")
 
-	if controllers.UserExist(emailId, password){
+	if controllers.UserExist(emailId){
 		fmt.Println("")
 		w.Write([]byte("valid userid"))
 	}else{
@@ -129,7 +130,7 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			defer cancel()
 			reply, err := authenticationClient.Authenticate(ctx, &pb.AuthenticateRequest{Token:token.Value })
 			if err != nil {
-				log.Fatalf("could not greet: %v", err)
+				log.Fatalf("Something went wrong ---> %v", err)
 			}
 			if reply.Success{
 				next.ServeHTTP(w, r)
@@ -146,9 +147,9 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 func getAuthServerConnection() (pb.AuthClient){
 	if  authClient == nil{
-		conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
+		conn, err := grpc.Dial(constants.AuthServerEndpoint, grpc.WithInsecure())
 		if err != nil {
-			log.Fatalf("did not connect: %v", err)
+			log.Fatalf("unable to connect auth servers: %v", err)
 		}
 		authClient = pb.NewAuthClient(conn)
 	}

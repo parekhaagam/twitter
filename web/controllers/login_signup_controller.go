@@ -4,7 +4,7 @@ import (
 	"github.com/parekhaagam/twitter/globals"
 )
 
-func UserExist(userName string, password string)bool{
+func UserExist(userName string)bool{
 
 	globals.UserRecordLock.Lock()
 	defer globals.UserRecordLock.Unlock()
@@ -23,7 +23,7 @@ func InsertUser(newUserName string, password string)bool{
 	//globals.UserRecordLock.Lock()
 	//defer globals.UserRecordLock.Unlock()
 
-	if ! UserExist(newUserName, password) {
+	if ! UserExist(newUserName) {
 		globals.UsersRecord[newUserName] = password
 		globals.AllUsers = append(globals.AllUsers, globals.User{newUserName})
 		return true

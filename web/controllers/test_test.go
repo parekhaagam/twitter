@@ -7,7 +7,7 @@ import (
 )
 func TestLogin(t *testing.T){
 	globals.InitGlobals()
-	var status = UserExist("manish.n", "admin")
+	var status = UserExist("manish.n")
 	pass := globals.UsersRecord["manish.n"]
 	status = status &&  pass == "admin"
 	if status {

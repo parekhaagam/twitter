@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
+	"github.com/parekhaagam/twitter/constants"
 	pb "github.com/parekhaagam/twitter/contracts/authentication"
 	spb "github.com/parekhaagam/twitter/contracts/storage"
 	"github.com/parekhaagam/twitter/globals"
@@ -14,7 +15,6 @@ import (
 	"time"
 )
 
-const WEB_HTML_DIR = "web/html"
 var authClient pb.AuthClient
 type loginPage struct {
 	Email    string
@@ -24,7 +24,7 @@ type loginPage struct {
 var limit = 25
 var storageClient spb.StorageClient
 func Signup(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles(WEB_HTML_DIR + "/signup.html")
+	t, err := template.ParseFiles(constants.WebHTMLDir + "/signup.html")
 	if err != nil {
 		log.Print("Sign up page not loaded properly", err)
 	}
@@ -39,7 +39,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func Show_users(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles(WEB_HTML_DIR + "/users_to_follow.html")
+	t, err := template.ParseFiles(constants.WebHTMLDir + "/users_to_follow.html")
 	if err != nil {
 		log.Print("500 Iternal Server Error", err)
 	}
@@ -83,7 +83,7 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 
 func Login(w http.ResponseWriter, r *http.Request) {
 
-	t:= template.Must(template.ParseFiles(WEB_HTML_DIR+"/login.html"))
+	t:= template.Must(template.ParseFiles(constants.WebHTMLDir+"/login.html"))
 	mLoginPage := loginPage{
 		Email:    "EmailId",
 		Password: "password",
@@ -101,9 +101,9 @@ func ValidateLogin(destURL string) http.HandlerFunc {
 		r.ParseForm()
 
 		emailId := strings.Join(r.Form["EmailId"], "")
-		password := strings.Join(r.Form["password"], "")
+		//password := strings.Join(r.Form["password"], "")
 
-		if UserExist(emailId, password) {
+		if UserExist(emailId) {
 			fmt.Println("")
 			r.Header.Set("Cookie", "")
 			token:=GetToken(emailId)
@@ -160,7 +160,7 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 			usersList := selected[0:]
 			followUserResponse,err := tweetClient.FollowUser(ctx, &spb.FollowUserRequest{UserName:userIdCookie.Value, UserNames:usersList})
 			if err != nil {
-				log.Fatalf("could not greet: %v", err)
+				log.Fatalf("Something went wrong --> %v", err)
 			}
 
 			fmt.Println(followUserResponse.Status)
@@ -193,7 +193,7 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 
 			insertTweetResponse, err := tweetClient.InsertTweets(ctx, &spb.InsertTweetRequest{User:&spb.User{UserName:loggedInUser}, Content:tweet_content[0]})
 			if err != nil {
-				log.Fatalf("could not greet: %v", err)
+				log.Fatalf("Something went wrong --> %v", err)
 			}
 			fmt.Println(insertTweetResponse.TID)
 
@@ -205,7 +205,7 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 		users:= &spb.User{UserName:loggedInUser}
 		getFollwerResponse, err := tweetClient.GetFollowersTweets(ctx, &spb.GetFollowersRequest{User:users})
 		if err != nil {
-			log.Fatalf("could not greet: %v", err)
+			log.Fatalf("Something went wrong --> %v", err)
 		}
 		fmt.Println(getFollwerResponse.Tweets)
 
@@ -222,7 +222,7 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 					TimeMessage:follwerTweet.TimeMessage})
 		}
 		followingCount := getFollwerResponse.FollowingNumber
-		t, err := template.ParseFiles(WEB_HTML_DIR + "/feed.html")
+		t, err := template.ParseFiles(constants.WebHTMLDir + "/feed.html")
 		if err != nil {
 			log.Print("500 Iternal Server Error", err)
 		}
@@ -257,14 +257,14 @@ func GetToken(userid string)  string{
 	defer cancel()
 	r, err := authenticationClient.GetToken(ctx, &pb.GetTokenRequest{Userid: userid})
 	if err != nil {
-		log.Fatalf("could not greet: %v", err)
+		log.Fatalf("Something went wrong --> %v", err)
 	}
 	return r.Token;
 
 }
 func getStorageClient() (spb.StorageClient){
 	if storageClient == nil {
-		conn, err := grpc.Dial("localhost:9002", grpc.WithInsecure())
+		conn, err := grpc.Dial(constants.StorageServerEndpoint, grpc.WithInsecure())
 		if err != nil {
 			log.Fatalf("did not connect: %v", err)
 		}
@@ -274,7 +274,7 @@ func getStorageClient() (spb.StorageClient){
 }
 func getAuthServerConnection() (pb.AuthClient){
 	if  authClient == nil{
-		conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
+		conn, err := grpc.Dial(constants.AuthServerEndpoint, grpc.WithInsecure())
 		if err != nil {
 			log.Fatalf("did not connect: %v", err)
 		}

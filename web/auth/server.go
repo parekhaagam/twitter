@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/parekhaagam/twitter/constants"
 	"github.com/parekhaagam/twitter/globals"
 	"github.com/parekhaagam/twitter/web/auth/storage/memory"
 	"google.golang.org/grpc"
@@ -32,7 +33,7 @@ func (a *AuthServerImpl) Authenticate(ctx context.Context, in *pb.AuthenticateRe
 }
 func NewAuthServer(cfg *Config) (error) {
 	globals.InitGlobals()
-	lis, err := net.Listen("tcp", cfg.HTTPAddr)
+	lis, err := net.Listen(constants.TCP, cfg.HTTPAddr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

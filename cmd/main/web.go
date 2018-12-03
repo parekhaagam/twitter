@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/parekhaagam/twitter/constants"
 	"github.com/parekhaagam/twitter/web"
 	"time"
 )
@@ -8,7 +9,7 @@ import (
 func main(){
 
 	cfg := &web.Config{
-		HTTPAddr: "localhost:8090",
+		HTTPAddr: constants.WebEndpoint,
 	}
 
 	webSrv, err := web.New(cfg)

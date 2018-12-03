@@ -1,13 +1,14 @@
 package main
 
 import (
+	"github.com/parekhaagam/twitter/constants"
 	"github.com/parekhaagam/twitter/web/auth"
 )
 
 func main(){
 
 	cfg := &auth.Config{
-		HTTPAddr: "localhost:9000",
+		HTTPAddr: constants.AuthServerEndpoint,
 	}
 	err := auth.NewAuthServer(cfg)
 	if err != nil {
