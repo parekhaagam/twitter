@@ -9,6 +9,7 @@ import (
 	"github.com/parekhaagam/twitter/globals"
 	"google.golang.org/grpc"
 	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
@@ -82,7 +83,14 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 }
 
 func Login(w http.ResponseWriter, r *http.Request) {
+	files, err1 := ioutil.ReadDir("./")
+	if err1 != nil {
+		log.Fatal(err1)
+	}
 
+	for _, f := range files {
+		fmt.Println(f.Name())
+	}
 	t:= template.Must(template.ParseFiles(constants.WebHTMLDir+"/login.html"))
 	mLoginPage := loginPage{
 		Email:    "EmailId",
