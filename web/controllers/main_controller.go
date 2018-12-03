@@ -102,8 +102,8 @@ func ValidateLogin(destURL string) http.HandlerFunc {
 
 		emailId := strings.Join(r.Form["EmailId"], "")
 		//password := strings.Join(r.Form["password"], "")
-
-		if UserExist(emailId) {
+		isValidUser :=userExist(emailId)
+		if isValidUser {
 			fmt.Println("")
 			r.Header.Set("Cookie", "")
 			token:=GetToken(emailId)
@@ -122,12 +122,11 @@ func ValidateLogin(destURL string) http.HandlerFunc {
 
 func ValidateSignup(destURL string) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-
 		r.ParseForm()
 		emailId := strings.Join(r.Form["EmailId"], "")
 		password := strings.Join(r.Form["password"], "")
-
-		if InsertUser(emailId, password) {
+		isNewUserInserted := insertUser(emailId,password)
+		if isNewUserInserted {
 			r.Header.Set("Cookie", "")
 			token:=GetToken(emailId)
 			var tokenCookie = http.Cookie{Name: "token", Value: token}
@@ -140,7 +139,6 @@ func ValidateSignup(destURL string) http.HandlerFunc {
 		} else {
 			w.Write([]byte("Invalid userid"))
 		}
-
 	})
 }
 
@@ -281,4 +279,18 @@ func getAuthServerConnection() (pb.AuthClient){
 		authClient = pb.NewAuthClient(conn)
 	}
 	return authClient
+}
+func insertUser(userId string,password string) (bool){
+	userDBClient := getStorageClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	r, _ := userDBClient.InsertUser(ctx, &spb.InsertUserRequest{UserName: userId,Password:password})
+	return r.Success
+}
+func userExist(userId string) (bool){
+	userDBClient := getStorageClient()
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	r, _ := userDBClient.UserExist(ctx, &spb.UserExistRequest{UserName: userId})
+	return r.Success
 }

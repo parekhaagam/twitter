@@ -140,8 +140,6 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		}else {
 			w.Write([]byte("Invalid Token"))
 		}
-
-
 	})
 }
 

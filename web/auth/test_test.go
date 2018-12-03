@@ -26,7 +26,7 @@ func TestAuthGetTokenConcurrent(t *testing.T)  {
 		}("def@gmail.com")
 	}
 	wg.Wait()
-	//fmt.Println(len(set))
+	fmt.Println(len(set))
 	if len(set)!=1{
 		t.Fatal("TokenGenerator is generating multiple token for same user when accessed concurrently")
 	}else {

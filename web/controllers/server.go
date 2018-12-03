@@ -68,6 +68,15 @@ func (a *StorageServerImpl) FollowUser(ctx context.Context, in *pb.FollowUserReq
 	FollowUser(globals.User{in.UserName}, in.UserNames)
 	return &pb.FollowUserResponse{Status:true},nil
 }
+func (a *StorageServerImpl) InsertUser(ctx context.Context, in *pb.InsertUserRequest) (*pb.InsertUserResponse, error) {
+
+	isSuccess := InsertUser(in.UserName,in.Password)
+	return &pb.InsertUserResponse{Success:isSuccess},nil
+}
+func (a *StorageServerImpl) UserExist(ctx context.Context, in *pb.UserExistRequest) (*pb.UserExistResponse, error) {
+	isSuccess := UserExist(in.UserName)
+	return &pb.UserExistResponse{Success:isSuccess},nil
+}
 
 
 func NewStorageServer(cfg *Config) (error) {

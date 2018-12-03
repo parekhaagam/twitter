@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 /*
-protoc -I . authentication/auth.proto --go_out=plugins=grpc:.
+protoc -I . storage/storage.proto --go_out=plugins=grpc:.
 */
 
 option java_multiple_files = true;
@@ -19,6 +19,9 @@ service Storage{
 
     rpc GetAllUsers(GetUsersRequest) returns (GetUsersResponse){}
     rpc FollowUser(FollowUserRequest) returns (FollowUserResponse){}
+
+    rpc InsertUser(InsertUserRequest) returns (InsertUserResponse) {}
+    rpc UserExist(UserExistRequest) returns (UserExistResponse) {}
 }
 
 message User{
@@ -80,4 +83,19 @@ message FollowUserRequest{
 message FollowUserResponse{
 
     bool status = 1;
+}
+message InsertUserRequest{
+    string userName = 1;
+    string password = 2;
+}
+
+message InsertUserResponse{
+    bool success = 1;
+}
+message UserExistRequest{
+    string userName = 1;
+}
+
+message UserExistResponse{
+    bool success = 1;
 }
