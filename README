@@ -1,3 +1,15 @@
+<Part-2>
+We have now seperated auth code and tweet/post code by making seperate servers
+
+To run the project run the below command
+<Windows>
+start_server.cmd
+
+<LINUX>
+sh start_server.sh --> this will start auth, storage and web servers at localhost:9000, localhost:9002 and
+localhost:8090 respectively.
+This command will host a webpage on http://localhost:8090/twitter endpoint
+<Part-1>
 To run this project :
 navigate to <Project>/cmd/main/
 
