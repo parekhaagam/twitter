@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+/*
+
+protoc -I . authentication/auth.proto --go_out=plugins=grpc:.
+*/
+
+option java_multiple_files = true;
+option java_package = "io.grpc.examples.authentication";
+option java_outer_classname = "AuthProto";
+
+
+package authentication;
+
+// The greeting service definition.
+service Auth {
+    // Sends a greeting
+    rpc GetToken (GetTokenRequest) returns (GetTokenReply) {}
+    // Sends a greeting
+    rpc Authenticate (AuthenticateRequest) returns (AuthenticateReply) {}
+}
+
+// The request message containing the user's name.
+message GetTokenRequest {
+    string userid = 1;
+}
+
+// The response message containing the greetings
+message GetTokenReply {
+    string token = 1;
+}
+// The request message containing the user's name.
+message AuthenticateRequest {
+    string token = 1;
+}
+
+// The response message containing the greetings
+message AuthenticateReply {
+    bool success = 1;
+}

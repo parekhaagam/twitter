@@ -1,7 +1,7 @@
-package auth
+package auth_server
 
 import (
-	"github.com/parekhaagam/twitter/web/auth/storage/memory"
+	"github.com/parekhaagam/twitter/auth_server/storage/memory"
 )
 
 /*type Auth struct {

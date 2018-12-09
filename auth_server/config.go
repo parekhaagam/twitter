@@ -1,4 +1,4 @@
-package auth
+package auth_server
 
 type Config struct {
 	HTTPAddr string
