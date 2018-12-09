@@ -1,16 +1,16 @@
 package main
 
 import (
+	"github.com/parekhaagam/twitter/app_server"
 	"github.com/parekhaagam/twitter/constants"
-	"github.com/parekhaagam/twitter/web/controllers"
 )
 
 func main(){
 
-	cfg := &controllers.Config{
+	cfg := &app_server.Config{
 		HTTPAddr: constants.StorageServerEndpoint,
 	}
-	err := controllers.NewStorageServer(cfg)
+	err := app_server.NewStorageServer(cfg)
 	if err != nil {
 		panic(err)
 	}

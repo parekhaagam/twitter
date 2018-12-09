@@ -1,4 +1,4 @@
-package controllers
+package app_server
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ import (
 )
 
 func getTweets(userId string)[]globals.Tweet{
-	return globals.UserTweet[userId]
+	return UserTweet[userId]
 }
 
 func InsertTweets(user globals.User, content string)string {
@@ -20,14 +20,14 @@ func InsertTweets(user globals.User, content string)string {
 	fmt.Println(TID)
 
 		for {
-			if _, exists := globals.TweetIdStored[TID]; exists {
+			if _, exists := TweetIdStored[TID]; exists {
 				TID = uuid.New().String()
 
 			} else {
 				break
 			}
 		}
-		globals.TweetIdStored[TID] = TID
+		TweetIdStored[TID] = TID
 		tmp := globals.Tweet{
 			Content:content,
 			Timestamp: time.Now().Unix(),
@@ -35,11 +35,11 @@ func InsertTweets(user globals.User, content string)string {
 			UserId:user.UserName,
 		}
 
-		if _, ok := globals.UserTweet[user.UserName]; ok {
-			globals.UserTweet[user.UserName] = append(globals.UserTweet[user.UserName], tmp)
+		if _, ok := UserTweet[user.UserName]; ok {
+			UserTweet[user.UserName] = append(UserTweet[user.UserName], tmp)
 		}else{
 			twitterTweet := []globals.Tweet{tmp}
-			globals.UserTweet[user.UserName] = twitterTweet
+			UserTweet[user.UserName] = twitterTweet
 		}
 		return TID
 		}
@@ -50,7 +50,7 @@ func GetFollowersTweets(followings []globals.User)[]globals.Tweet{
 
 	var followingTweet []globals.Tweet
 	for _,following := range followings{
-		followingTweet = append(followingTweet , globals.UserTweet[following.UserName]...)
+		followingTweet = append(followingTweet , UserTweet[following.UserName]...)
 	}
 
 	sort.Slice(followingTweet[:], func(i, j int) bool {

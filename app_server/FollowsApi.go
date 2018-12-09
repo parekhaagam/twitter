@@ -1,4 +1,4 @@
-package controllers
+package app_server
 
 import "github.com/parekhaagam/twitter/globals"
 func FollowUser(follower globals.User, selectedUserNames []string) {
@@ -8,6 +8,6 @@ func FollowUser(follower globals.User, selectedUserNames []string) {
 		follows = append(follows, globals.User{userName})
 	}
 
-	allFollowers := globals.Followers
+	allFollowers := Followers
 	allFollowers[follower.UserName] = follows
 }

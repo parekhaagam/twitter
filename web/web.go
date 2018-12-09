@@ -1,17 +1,13 @@
 package web
 
 import (
-	"github.com/parekhaagam/twitter/constants"
-	"github.com/parekhaagam/twitter/web/controllers"
 	"context"
-	"fmt"
+	"github.com/parekhaagam/twitter/constants"
+	pb "github.com/parekhaagam/twitter/contracts/authentication"
+	"github.com/parekhaagam/twitter/web/controllers"
 	"google.golang.org/grpc"
-	"html/template"
 	"log"
 	"net/http"
-	"strings"
-	"github.com/parekhaagam/twitter/globals"
-	pb "github.com/parekhaagam/twitter/contracts/authentication"
 	"time"
 )
 
@@ -26,67 +22,7 @@ type loginPage struct {
 	Password string
 }
 var authClient pb.AuthClient
-func signup(w http.ResponseWriter, r *http.Request) {
 
-
-	t, err := template.ParseFiles("web/html/signup.html")
-	if err != nil{
-		log.Print("sign up page not loaded properly", err)
-	}
-	mLoginPage := loginPage{
-		Email:    "EmailId",
-		Password: "password",
-	}
-	err = t.Execute(w, mLoginPage)
-	if err != nil {
-		log.Print("error while executing ", err)
-	}
-}
-
-func login(w http.ResponseWriter, r *http.Request) {
-
-	t:= template.Must(template.ParseFiles("web/html/login.html"))
-	mLoginPage := loginPage{
-		Email:    "EmailId",
-		Password: "password",
-	}
-	err := t.Execute(w, mLoginPage)
-	if err != nil {
-		log.Print("error while executing ", err)
-	}
-}
-
-
-func validateLogin(w http.ResponseWriter, r *http.Request) {
-
-	r.ParseForm()
-
-	emailId := strings.Join(r.Form["EmailId"], "")
-	//password := strings.Join(r.Form["password"], "")
-
-	if controllers.UserExist(emailId){
-		fmt.Println("")
-		w.Write([]byte("valid userid"))
-	}else{
-		w.Write([]byte("Invalid UserId"))
-	}
-
-}
-
-func validateSignup(w http.ResponseWriter, r *http.Request){
-
-	r.ParseForm()
-	emailId := strings.Join(r.Form["EmailId"], "")
-	password := strings.Join(r.Form["password"], "")
-
-
-	if controllers.InsertUser(emailId, password){
-		w.Write([]byte("valid userid"))
-	}else{
-		w.Write([]byte("Invalid userid"))
-	}
-
-}
 
 func New(cfg *Config) (*Web, error) {
 	mx := http.NewServeMux()
@@ -99,7 +35,7 @@ func New(cfg *Config) (*Web, error) {
 		srv: s,
 	}
 
-	globals.InitGlobals()
+	//globals.InitGlobals()
 	mx.HandleFunc("/twitter", controllers.Login)
 	mx.HandleFunc("/signup", controllers.Signup)
 	mx.HandleFunc("/signupValidation", controllers.ValidateSignup("/show-users"))

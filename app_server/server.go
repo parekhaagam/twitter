@@ -1,4 +1,4 @@
-package controllers
+package app_server
 
 import (
 	"context"
@@ -80,7 +80,7 @@ func (a *StorageServerImpl) UserExist(ctx context.Context, in *pb.UserExistReque
 
 
 func NewStorageServer(cfg *Config) (error) {
-	globals.InitGlobals()
+	InitGlobals()
 	lis, err := net.Listen("tcp", cfg.HTTPAddr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)

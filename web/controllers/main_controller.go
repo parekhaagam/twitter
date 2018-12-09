@@ -61,13 +61,13 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 			}
 
 
-			var users []UserFollowed
+			var users []globals.UserFollowed
 
 			for _,eachUserList := range getUsersResponse.Users{
-				users = append(users, UserFollowed{eachUserList.UserName, eachUserList.Isfollowed})
+				users = append(users, globals.UserFollowed{eachUserList.UserName, eachUserList.Isfollowed})
 			}
 
-			err = t.Execute(w, UserList{users, false})
+			err = t.Execute(w, globals.UserList{users, false})
 			if err != nil {
 				log.Print("error while executing ", err)
 			}

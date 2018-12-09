@@ -1,4 +1,4 @@
-package controllers
+package app_server
 
 import (
 	"github.com/parekhaagam/twitter/globals"
@@ -8,7 +8,7 @@ import (
 func TestLogin(t *testing.T){
 	globals.InitGlobals()
 	var status = UserExist("manish.n")
-	pass := globals.UsersRecord["manish.n"]
+	pass := UsersRecord["manish.n"]
 	status = status &&  pass == "admin"
 	if status {
 		fmt.Println("Passed : ","TestLogin")
@@ -20,7 +20,7 @@ func TestLogin(t *testing.T){
 func TestSignUp(t *testing.T){
 	globals.InitGlobals()
 	var status = InsertUser("testUser", "admin")
-	pass := globals.UsersRecord["testUser"]
+	pass := UsersRecord["testUser"]
 	status = status &&  pass == "admin"
 	if status{
 		fmt.Print("Passed : ","TestSignUp")
@@ -34,10 +34,10 @@ func TestTweetPost(t *testing.T){
 	currUser := globals.User{"manish.n"}
 	tweet_content := "testing tweet"
 	TID := InsertTweets(currUser, tweet_content)
-	_, exists := globals.TweetIdStored[TID]
+	_, exists := TweetIdStored[TID]
 
 	tweetFound := false
-	for _,tweet := range globals.UserTweet["manish.n"]{
+	for _,tweet := range UserTweet["manish.n"]{
 		if tweet.TID == TID{
 			tweetFound = true
 		}
@@ -55,17 +55,17 @@ func TestTweetPost(t *testing.T){
 func TestFollowAllUser(t *testing.T) {
 	globals.InitGlobals()
 	currUser := globals.User{"manish.n"}
-	fmt.Println(globals.AllUsers)
-	count := len(globals.AllUsers)
+	fmt.Println(AllUsers)
+	count := len(AllUsers)
 	list := make([]string,0)
-	for _, user := range globals.AllUsers {
+	for _, user := range AllUsers {
 		if user.UserName != currUser.UserName {
 			fmt.Println("Following ", user.UserName)
 			list = append(list, user.UserName)
 		}
 	}
 	FollowUser(currUser, list[0:])
-	follows := globals.Followers[currUser.UserName]
+	follows := Followers[currUser.UserName]
 	followCount := len(follows)
 	fmt.Println(follows)
 	if followCount == count-1 {
@@ -82,7 +82,7 @@ func TestFollowersTweet(t *testing.T) {
 	selectedUserNames := []string{"dhoni007", "srk", "chandler"}
 	FollowUser(currUser, selectedUserNames)
 
-	following := globals.Followers[currUser.UserName]
+	following := Followers[currUser.UserName]
 	tweets := GetFollowersTweets(following)
 	for _, tweet := range tweets {
 		userFound := false
