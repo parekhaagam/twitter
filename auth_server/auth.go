@@ -5,7 +5,7 @@ import (
 )
 
 /*type Auth struct {
-	storage storage.Storage
+	contract contract.Storage
 }*/
 
 func IsTokenValid(token string) (bool){

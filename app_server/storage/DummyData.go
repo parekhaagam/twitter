@@ -1,4 +1,4 @@
-package app_server
+package storage
 
 import (
 	"github.com/google/uuid"

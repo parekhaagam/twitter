@@ -1,14 +1,18 @@
 package app_server
 
 import (
-	"github.com/parekhaagam/twitter/globals"
+	//"github.com/parekhaagam/twitter/globals"
 	"fmt"
+	"github.com/parekhaagam/twitter/globals"
+
+	"github.com/parekhaagam/twitter/app_server/storage"
 	"testing"
 )
 func TestLogin(t *testing.T){
-	globals.InitGlobals()
+
+	storage.InitGlobals()
 	var status = UserExist("manish.n")
-	pass := UsersRecord["manish.n"]
+	pass := storage.UsersRecord["manish.n"]
 	status = status &&  pass == "admin"
 	if status {
 		fmt.Println("Passed : ","TestLogin")
@@ -18,9 +22,9 @@ func TestLogin(t *testing.T){
 }
 
 func TestSignUp(t *testing.T){
-	globals.InitGlobals()
+	storage.InitGlobals()
 	var status = InsertUser("testUser", "admin")
-	pass := UsersRecord["testUser"]
+	pass := storage.UsersRecord["testUser"]
 	status = status &&  pass == "admin"
 	if status{
 		fmt.Print("Passed : ","TestSignUp")
@@ -30,14 +34,14 @@ func TestSignUp(t *testing.T){
 }
 
 func TestTweetPost(t *testing.T){
-	globals.InitGlobals()
+	storage.InitGlobals()
 	currUser := globals.User{"manish.n"}
 	tweet_content := "testing tweet"
 	TID := InsertTweets(currUser, tweet_content)
-	_, exists := TweetIdStored[TID]
+	_, exists := storage.TweetIdStored[TID]
 
 	tweetFound := false
-	for _,tweet := range UserTweet["manish.n"]{
+	for _,tweet := range storage.UserTweet["manish.n"]{
 		if tweet.TID == TID{
 			tweetFound = true
 		}
@@ -53,19 +57,19 @@ func TestTweetPost(t *testing.T){
 
 
 func TestFollowAllUser(t *testing.T) {
-	globals.InitGlobals()
+	storage.InitGlobals()
 	currUser := globals.User{"manish.n"}
-	fmt.Println(AllUsers)
-	count := len(AllUsers)
+	fmt.Println(storage.AllUsers)
+	count := len(storage.AllUsers)
 	list := make([]string,0)
-	for _, user := range AllUsers {
+	for _, user := range storage.AllUsers {
 		if user.UserName != currUser.UserName {
 			fmt.Println("Following ", user.UserName)
 			list = append(list, user.UserName)
 		}
 	}
 	FollowUser(currUser, list[0:])
-	follows := Followers[currUser.UserName]
+	follows := storage.Followers[currUser.UserName]
 	followCount := len(follows)
 	fmt.Println(follows)
 	if followCount == count-1 {
@@ -76,13 +80,13 @@ func TestFollowAllUser(t *testing.T) {
 }
 
 func TestFollowersTweet(t *testing.T) {
-	globals.InitGlobals()
+	storage.InitGlobals()
 	currUser := globals.User{"manish.n"}
 
 	selectedUserNames := []string{"dhoni007", "srk", "chandler"}
 	FollowUser(currUser, selectedUserNames)
 
-	following := Followers[currUser.UserName]
+	following := storage.Followers[currUser.UserName]
 	tweets := GetFollowersTweets(following)
 	for _, tweet := range tweets {
 		userFound := false

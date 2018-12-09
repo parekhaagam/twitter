@@ -1,4 +1,4 @@
-package web
+package web_server
 
 type Config struct {
 	HTTPAddr string

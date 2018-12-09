@@ -4,14 +4,14 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/parekhaagam/twitter/auth_server/storage/memory"
-	pb "github.com/parekhaagam/twitter/contracts/authentication"
+	pb "github.com/parekhaagam/twitter/web_server/contracts/authentication"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"log"
 	"net"
 	"time"
 
-	//"github.com/parekhaagam/twitter/web/controllers"
+	//"github.com/parekhaagam/twitter/web_server/controllers"
 	"net/http"
 )
 

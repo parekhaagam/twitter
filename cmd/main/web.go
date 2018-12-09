@@ -1,18 +1,18 @@
 package main
 
 import (
-	"github.com/parekhaagam/twitter/constants"
-	"github.com/parekhaagam/twitter/web"
+	"github.com/parekhaagam/twitter/globals"
+	"github.com/parekhaagam/twitter/web_server"
 	"time"
 )
 
 func main(){
 
-	cfg := &web.Config{
-		HTTPAddr: constants.WebEndpoint,
+	cfg := &web_server.Config{
+		HTTPAddr: globals.WebEndpoint,
 	}
 
-	webSrv, err := web.New(cfg)
+	webSrv, err := web_server.New(cfg)
 	if err != nil {
 		panic(err)
 	}

@@ -1,6 +1,7 @@
 package app_server
 
 import (
+	"github.com/parekhaagam/twitter/app_server/storage"
 	"github.com/parekhaagam/twitter/globals"
 	"fmt"
 )
@@ -10,7 +11,7 @@ import (
 
 func Get_all_users(loggedInUserId string) (ul globals.UserList){
 	var users []globals.UserFollowed
-	allUsers := AllUsers
+	allUsers := storage.AllUsers
 	loggedInUser := globals.User{loggedInUserId} //should come from session
 	for _,user := range allUsers {
 		if user.UserName != loggedInUser.UserName {

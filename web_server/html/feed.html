@@ -61,7 +61,7 @@ body {
 
 <div class="left">
     
-    <p><img src="/public/images/icon.png"></p>
+    <p><img src="/web_server/public/images/icon.png"></p>
     <h2>{{ .CurrUser}}</h2>
 
     <!--<p>Followers:{{ .FollowersNumber}}</p>-->
@@ -81,7 +81,7 @@ body {
 {{ range .}}
     <div class="container">
       <p>
-        <img src="/public/images/chat.png" alt="Avatar">
+        <img src="/web_server/public/images/chat.png" alt="Avatar">
       </p>
       <p><h5>{{ .UserId}}</h5>
       <p>{{ .Content }}</p>

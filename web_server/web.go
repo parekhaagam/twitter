@@ -1,10 +1,10 @@
-package web
+package web_server
 
 import (
 	"context"
-	"github.com/parekhaagam/twitter/constants"
-	pb "github.com/parekhaagam/twitter/contracts/authentication"
-	"github.com/parekhaagam/twitter/web/controllers"
+	"github.com/parekhaagam/twitter/globals"
+	pb "github.com/parekhaagam/twitter/web_server/contracts/authentication"
+	"github.com/parekhaagam/twitter/web_server/controllers"
 	"google.golang.org/grpc"
 	"log"
 	"net/http"
@@ -44,7 +44,7 @@ func New(cfg *Config) (*Web, error) {
 	mx.HandleFunc("/show-users", AuthenticationMiddleware(controllers.Show_users))
 	mx.HandleFunc("/follow", AuthenticationMiddleware(controllers.Follow_users(controllers.Feed)))
 	mx.HandleFunc("/feed", AuthenticationMiddleware(controllers.Feed))
-	mx.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
+	mx.Handle("/web_server/public/", http.StripPrefix("/web_server/public/", http.FileServer(http.Dir("web_server/public"))))
 	return ws, nil
 
 }
@@ -81,7 +81,7 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 func getAuthServerConnection() (pb.AuthClient){
 	if  authClient == nil{
-		conn, err := grpc.Dial(constants.AuthServerEndpoint, grpc.WithInsecure())
+		conn, err := grpc.Dial(globals.AuthServerEndpoint, grpc.WithInsecure())
 		if err != nil {
 			log.Fatalf("unable to connect auth servers: %v", err)
 		}

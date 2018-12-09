@@ -3,9 +3,8 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"github.com/parekhaagam/twitter/constants"
-	pb "github.com/parekhaagam/twitter/contracts/authentication"
-	spb "github.com/parekhaagam/twitter/contracts/storage"
+	pb "github.com/parekhaagam/twitter/web_server/contracts/authentication"
+	spb "github.com/parekhaagam/twitter/app_server/contract"
 	"github.com/parekhaagam/twitter/globals"
 	"google.golang.org/grpc"
 	"html/template"
@@ -25,7 +24,7 @@ type loginPage struct {
 var limit = 25
 var storageClient spb.StorageClient
 func Signup(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles(constants.WebHTMLDir + "/signup.html")
+	t, err := template.ParseFiles(WebHTMLDir + "/signup.html")
 	if err != nil {
 		log.Print("Sign up page not loaded properly", err)
 	}
@@ -40,7 +39,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func Show_users(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles(constants.WebHTMLDir + "/users_to_follow.html")
+	t, err := template.ParseFiles(WebHTMLDir + "/users_to_follow.html")
 	if err != nil {
 		log.Print("500 Iternal Server Error", err)
 	}
@@ -91,7 +90,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	for _, f := range files {
 		fmt.Println(f.Name())
 	}
-	t:= template.Must(template.ParseFiles(constants.WebHTMLDir+"/login.html"))
+	t:= template.Must(template.ParseFiles(WebHTMLDir+"/login.html"))
 	mLoginPage := loginPage{
 		Email:    "EmailId",
 		Password: "password",
@@ -228,7 +227,7 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 					TimeMessage:follwerTweet.TimeMessage})
 		}
 		followingCount := getFollwerResponse.FollowingNumber
-		t, err := template.ParseFiles(constants.WebHTMLDir + "/feed.html")
+		t, err := template.ParseFiles(WebHTMLDir + "/feed.html")
 		if err != nil {
 			log.Print("500 Iternal Server Error", err)
 		}
@@ -270,7 +269,7 @@ func GetToken(userid string)  string{
 }
 func getStorageClient() (spb.StorageClient){
 	if storageClient == nil {
-		conn, err := grpc.Dial(constants.StorageServerEndpoint, grpc.WithInsecure())
+		conn, err := grpc.Dial(globals.StorageServerEndpoint, grpc.WithInsecure())
 		if err != nil {
 			log.Fatalf("did not connect: %v", err)
 		}
@@ -280,7 +279,7 @@ func getStorageClient() (spb.StorageClient){
 }
 func getAuthServerConnection() (pb.AuthClient){
 	if  authClient == nil{
-		conn, err := grpc.Dial(constants.AuthServerEndpoint, grpc.WithInsecure())
+		conn, err := grpc.Dial(globals.AuthServerEndpoint, grpc.WithInsecure())
 		if err != nil {
 			log.Fatalf("did not connect: %v", err)
 		}

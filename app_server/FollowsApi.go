@@ -1,6 +1,9 @@
 package app_server
 
-import "github.com/parekhaagam/twitter/globals"
+import (
+	"github.com/parekhaagam/twitter/app_server/storage"
+	"github.com/parekhaagam/twitter/globals"
+)
 func FollowUser(follower globals.User, selectedUserNames []string) {
 	follows := make([]globals.User, 0)
 
@@ -8,6 +11,6 @@ func FollowUser(follower globals.User, selectedUserNames []string) {
 		follows = append(follows, globals.User{userName})
 	}
 
-	allFollowers := Followers
+	allFollowers := storage.Followers
 	allFollowers[follower.UserName] = follows
 }

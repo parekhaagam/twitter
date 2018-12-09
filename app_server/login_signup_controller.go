@@ -1,15 +1,16 @@
 package app_server
 
 import (
+	"github.com/parekhaagam/twitter/app_server/storage"
 	"github.com/parekhaagam/twitter/globals"
 )
 
 func UserExist(userName string)bool{
 
-	UserRecordLock.Lock()
-	defer UserRecordLock.Unlock()
+	storage.UserRecordLock.Lock()
+	defer storage.UserRecordLock.Unlock()
 
-	_, exists := UsersRecord[userName]
+	_, exists := storage.UsersRecord[userName]
 	if exists {
 		return true
 	}else {
@@ -24,8 +25,8 @@ func InsertUser(newUserName string, password string)bool{
 	//defer globals.UserRecordLock.Unlock()
 
 	if ! UserExist(newUserName) {
-		UsersRecord[newUserName] = password
-		AllUsers = append(AllUsers, globals.User{newUserName})
+		storage.UsersRecord[newUserName] = password
+		storage.AllUsers = append(storage.AllUsers, globals.User{newUserName})
 		return true
 	}else {
 		return false
@@ -36,7 +37,7 @@ func InsertUser(newUserName string, password string)bool{
 
 //Returns true if user 1 follows user 2
 func Follows(user1 globals.User, user2 globals.User) bool{
-	followers := Followers
+	followers := storage.Followers
 	follows,ok := followers[user1.UserName]
 
 	doesFollow := false
@@ -52,7 +53,7 @@ func Follows(user1 globals.User, user2 globals.User) bool{
 }
 
 func GetAllFollowing(user globals.User) ([]globals.User){
-	followers := Followers
+	followers := storage.Followers
 	follows,ok := followers[user.UserName]
 	if !ok {
 		follows = make([]globals.User,0,0)

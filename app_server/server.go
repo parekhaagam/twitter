@@ -3,7 +3,8 @@ package app_server
 import (
 	"context"
 	"fmt"
-	pb "github.com/parekhaagam/twitter/contracts/storage"
+	pb "github.com/parekhaagam/twitter/app_server/contract"
+	"github.com/parekhaagam/twitter/app_server/storage"
 	"github.com/parekhaagam/twitter/globals"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -80,8 +81,8 @@ func (a *StorageServerImpl) UserExist(ctx context.Context, in *pb.UserExistReque
 
 
 func NewStorageServer(cfg *Config) (error) {
-	InitGlobals()
-	lis, err := net.Listen("tcp", cfg.HTTPAddr)
+	storage.InitGlobals()
+	lis, err := net.Listen(TCP, cfg.HTTPAddr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

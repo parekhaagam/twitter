@@ -1,4 +1,4 @@
-package auth_server
+package app_server
 
 //const WebEndpoint  = "localhost:8090"
 //const AuthServerEndpoint  = "localhost:9000"
