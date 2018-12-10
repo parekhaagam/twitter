@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/coreos/etcd/clientv3"
 	"github.com/etcd-io/etcd/clientv3/namespace"
+	"strings"
 )
 
 func Get(){
@@ -15,12 +16,14 @@ func Get(){
 	}
 
 	unprefixedKV := cli.KV
-	cli.KV = namespace.NewKV(cli.KV, "my-prefix/")
-	cli.Watcher = namespace.NewWatcher(cli.Watcher, "my-prefix/")
-	cli.Lease = namespace.NewLease(cli.Lease, "my-prefix/")
+	var loggedInUserMapKey []string
+	loggedInUserMapKey = append(loggedInUserMapKey,LOGGED_IN_USER_PREFIX,"123uname")
+	cli.KV = namespace.NewKV(cli.KV, AUTH_PREFIX)
+	cli.Watcher = namespace.NewWatcher(cli.Watcher, AUTH_PREFIX)
+	cli.Lease = namespace.NewLease(cli.Lease, AUTH_PREFIX)
 
-	cli.Put(context.TODO(), "abc", "123")
-	resp, _ := unprefixedKV.Get(context.TODO(), "my-prefix/abc")
+	cli.Put(context.TODO(), strings.Join(loggedInUserMapKey,""), "123")
+	resp, _ := unprefixedKV.Get(context.TODO(), strings.Join(loggedInUserMapKey,""))
 	fmt.Printf("%s\n", resp.Kvs[0].Value)
 	// Output: 123
 
