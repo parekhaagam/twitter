@@ -10,9 +10,9 @@ import (
 }
 */
 type TokenDetails struct {
-	UserId string
-	TimeGenerated time.Time
-	Token string
+	UserId string `json:"UserId"`
+	TimeGenerated time.Time `json:"TimeGenerated"`
+	Token string `json:"Token"`
 }
 type Authentication struct {
 	IsStarted      bool
