@@ -1,21 +1,22 @@
 package storage
 
 import (
-	"github.com/google/uuid"
+	"github.com/parekhaagam/twitter/app_server/storage/memory"
 	"github.com/parekhaagam/twitter/globals"
-	"time"
 )
 
 func InitGlobals() {
-	Followers = make(map[string][]globals.User)
-	UsersRecord = make(map[string]string)
-	UserTweet = make(map[string][]globals.Tweet)
-	TweetIdStored = make(map[string]string)
-	AllUsers = insertDummies()
+	memory.Followers = make(map[string][]globals.User)
+	memory.UsersRecord = make(map[string]string)
+	memory.UserTweet = make(map[string][]globals.Tweet)
+	memory.TweetIdStored = make(map[string]string)
+	memory.AllUsers = insertDummies()
 }
 
 func insertDummies() (allUsers[] globals.User){
-	UsersRecord["manish.n"] = "admin"
+
+	InsertUserRecord("manish.n", "admin")
+	/*UsersRecord["manish.n"] = "admin"
 	UsersRecord["dhoni007"] = "admin"
 	UsersRecord["srk"] = "admin"
 	UsersRecord["chandler"] = "admin"
@@ -37,6 +38,6 @@ func insertDummies() (allUsers[] globals.User){
 	UserTweet["manish.n"] = append(UserTweet["manish.n"], tweet4)
 	UserTweet["chandler"] = append(UserTweet["chandler"], tweet3)
 	UserTweet["srk"] = append(UserTweet["srk"], tweet2)
-
+*/
 	return allUsers
 }

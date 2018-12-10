@@ -3,9 +3,9 @@ package controllers
 import (
 	"context"
 	"fmt"
-	pb "github.com/parekhaagam/twitter/web_server/contracts/authentication"
 	spb "github.com/parekhaagam/twitter/app_server/contract"
 	"github.com/parekhaagam/twitter/globals"
+	pb "github.com/parekhaagam/twitter/web_server/contracts/authentication"
 	"google.golang.org/grpc"
 	"html/template"
 	"io/ioutil"
@@ -298,6 +298,10 @@ func userExist(userId string) (bool){
 	userDBClient := getStorageClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	r, _ := userDBClient.UserExist(ctx, &spb.UserExistRequest{UserName: userId})
+	r, err := userDBClient.UserExist(ctx, &spb.UserExistRequest{UserName: userId})
+	if err!=nil{
+		fmt.Println(err)
+		return false
+	}
 	return r.Success
 }

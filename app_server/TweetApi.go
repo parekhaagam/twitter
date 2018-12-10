@@ -2,7 +2,8 @@ package app_server
 
 import (
 	"fmt"
-	"github.com/parekhaagam/twitter/app_server/storage"
+
+	"github.com/parekhaagam/twitter/app_server/storage/memory"
 	"github.com/parekhaagam/twitter/globals"
 	"github.com/google/uuid"
 	"sort"
@@ -11,7 +12,7 @@ import (
 )
 
 func getTweets(userId string)[]globals.Tweet{
-	return storage.UserTweet[userId]
+	return memory.UserTweet[userId]
 }
 
 func InsertTweets(user globals.User, content string)string {
@@ -21,14 +22,14 @@ func InsertTweets(user globals.User, content string)string {
 	fmt.Println(TID)
 
 		for {
-			if _, exists := storage.TweetIdStored[TID]; exists {
+			if _, exists := memory.TweetIdStored[TID]; exists {
 				TID = uuid.New().String()
 
 			} else {
 				break
 			}
 		}
-	storage.TweetIdStored[TID] = TID
+	memory.TweetIdStored[TID] = TID
 		tmp := globals.Tweet{
 			Content:content,
 			Timestamp: time.Now().Unix(),
@@ -36,11 +37,11 @@ func InsertTweets(user globals.User, content string)string {
 			UserId:user.UserName,
 		}
 
-		if _, ok := storage.UserTweet[user.UserName]; ok {
-			storage.UserTweet[user.UserName] = append(storage.UserTweet[user.UserName], tmp)
+		if _, ok := memory.UserTweet[user.UserName]; ok {
+			memory.UserTweet[user.UserName] = append(memory.UserTweet[user.UserName], tmp)
 		}else{
 			twitterTweet := []globals.Tweet{tmp}
-			storage.UserTweet[user.UserName] = twitterTweet
+			memory.UserTweet[user.UserName] = twitterTweet
 		}
 		return TID
 		}
@@ -51,7 +52,7 @@ func GetFollowersTweets(followings []globals.User)[]globals.Tweet{
 
 	var followingTweet []globals.Tweet
 	for _,following := range followings{
-		followingTweet = append(followingTweet , storage.UserTweet[following.UserName]...)
+		followingTweet = append(followingTweet , memory.UserTweet[following.UserName]...)
 	}
 
 	sort.Slice(followingTweet[:], func(i, j int) bool {

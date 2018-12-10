@@ -8,25 +8,25 @@ package globals
 
 //Data Object for User without Password
 type User struct {
-	UserName string
+	UserName string `json:"UserName"`
 }
 
 type Tweet struct {
-	UserId      string
-	TID         string
-	Timestamp   int64
-	Content     string
-	TimeMessage string
+	UserId      string `json:"UserId"`
+	TID         string `json:"TID"`
+	Timestamp   int64	`json:"Timestamp"`
+	Content     string  `json:"Content"`
+	TimeMessage string  `json:"TimeMessage"`
 }
 
 
 type UserFollowed struct{
-	UserName string
-	Isfollowed bool
+	UserName string `json:"UserName"`
+	Isfollowed bool  `json:"isfollowed"`
 }
 
 //Used for "Search Users" Page
 type UserList struct{
-	List []UserFollowed
-	NextPage bool
+	List []UserFollowed `json:"UserFollowed"`
+	NextPage bool `json:"NextPage"`
 }

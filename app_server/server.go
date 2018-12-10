@@ -71,18 +71,21 @@ func (a *StorageServerImpl) FollowUser(ctx context.Context, in *pb.FollowUserReq
 }
 func (a *StorageServerImpl) InsertUser(ctx context.Context, in *pb.InsertUserRequest) (*pb.InsertUserResponse, error) {
 
-	isSuccess := InsertUser(in.UserName,in.Password)
+	isSuccess := storage.InsertUserRecord(in.UserName,in.Password)
 	return &pb.InsertUserResponse{Success:isSuccess},nil
 }
 func (a *StorageServerImpl) UserExist(ctx context.Context, in *pb.UserExistRequest) (*pb.UserExistResponse, error) {
-	isSuccess := UserExist(in.UserName)
+
+	fmt.Println("inside user exist storage server impl")
+	isSuccess := storage.CheckUserExist(in.UserName)
 	return &pb.UserExistResponse{Success:isSuccess},nil
 }
 
 
 func NewStorageServer(cfg *Config) (error) {
 	storage.InitGlobals()
-	lis, err := net.Listen(TCP, cfg.HTTPAddr)
+	lis, err := net.Listen(storage.TCP, cfg.HTTPAddr)
+	fmt.Println("inside new storage server")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

@@ -1,4 +1,4 @@
-package storage
+package memory
 
 import (
 	"github.com/parekhaagam/twitter/globals"
@@ -18,3 +18,4 @@ var UserRecordLock sync.Mutex
 var UserTweet map[string][]globals.Tweet
 
 var TweetIdStored map[string]string
+
