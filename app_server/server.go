@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	pb "github.com/parekhaagam/twitter/app_server/contract"
-	"github.com/parekhaagam/twitter/app_server/storage"
 	"github.com/parekhaagam/twitter/globals"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -25,7 +24,8 @@ type StorageServerImpl struct{}
 func (a *StorageServerImpl)InsertTweets(ctx context.Context, in *pb.InsertTweetRequest) (*pb.InsertTweetReply, error){
 
 	user := globals.User{in.User.UserName}
-	tid := InsertTweets(user, in.Content)
+	//tid := InsertTweets(user, in.Content)
+	tid:= StorageInsertTweets(user, in.Content)
 	return &pb.InsertTweetReply{TID:tid},nil
 }
 
@@ -35,10 +35,16 @@ func (a *StorageServerImpl)GetFollowersTweets(ctx context.Context, in *pb.GetFol
 	//followings []globals.User :=
 
 	currUser := globals.User{in.User.UserName}
-	following := GetAllFollowing(currUser)
+
+	//following := GetAllFollowing(currUser)
+	following := GetAllFollowingUser(currUser)
+
 	followingNumber := len(following)
 	following = append(following, currUser)
-	tweets := GetFollowersTweets(following)
+
+	//tweets := GetFollowersTweets(following)
+	tweets := StorageGetFollowersTweets(following)
+
 	fmt.Println(tweets)
 
 	var tweetArray []*pb.Tweet
@@ -52,7 +58,8 @@ func (a *StorageServerImpl)GetFollowersTweets(ctx context.Context, in *pb.GetFol
 func (a *StorageServerImpl) GetAllUsers(ctx context.Context, in *pb.GetUsersRequest) (*pb.GetUsersResponse, error){
 
 
-	userLists := Get_all_users(in.LoggedInUserId)
+	//userLists := Get_all_users(in.LoggedInUserId)
+	userLists := Storage_Get_all_users(in.LoggedInUserId)
 
 	var users []*pb.UserFollowed
 	for _,eachUser := range userLists.List{
@@ -66,26 +73,33 @@ func (a *StorageServerImpl) GetAllUsers(ctx context.Context, in *pb.GetUsersRequ
 
 func (a *StorageServerImpl) FollowUser(ctx context.Context, in *pb.FollowUserRequest) (*pb.FollowUserResponse, error) {
 
-	FollowUser(globals.User{in.UserName}, in.UserNames)
+	//FollowUser(globals.User{in.UserName}, in.UserNames)
+	StorageFollowUser(globals.User{in.UserName}, in.UserNames)
+
 	return &pb.FollowUserResponse{Status:true},nil
 }
 func (a *StorageServerImpl) InsertUser(ctx context.Context, in *pb.InsertUserRequest) (*pb.InsertUserResponse, error) {
 
-	isSuccess := storage.InsertUserRecord(in.UserName,in.Password)
-	return &pb.InsertUserResponse{Success:isSuccess},nil
+	fmt.Println("inside insert user")
+	status := InsertUserRecord(in.UserName, in.Password)
+	fmt.Println("status of Insert user record: ", status)
+
+	/*fmt.Println("status of Insert user record: ", status)
+	isSuccess := InsertUser(in.UserName,in.Password)
+*/
+	return &pb.InsertUserResponse{Success:status},nil
 }
 func (a *StorageServerImpl) UserExist(ctx context.Context, in *pb.UserExistRequest) (*pb.UserExistResponse, error) {
 
-	fmt.Println("inside user exist storage server impl")
-	isSuccess := storage.CheckUserExist(in.UserName)
+	//isSuccess := UserExist(in.UserName)
+	isSuccess := CheckUserExist(in.UserName)
 	return &pb.UserExistResponse{Success:isSuccess},nil
 }
 
 
 func NewStorageServer(cfg *Config) (error) {
-	storage.InitGlobals()
-	lis, err := net.Listen(storage.TCP, cfg.HTTPAddr)
-	fmt.Println("inside new storage server")
+	InitGlobals()
+	lis, err := net.Listen(TCP, cfg.HTTPAddr)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
