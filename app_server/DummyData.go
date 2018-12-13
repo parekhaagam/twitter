@@ -13,40 +13,36 @@ func InitGlobals() {
 	insertDummies()
 }
 
-func insertDummies(){
-/*
+func insertDummies() {
+
 	//UsersRecord["manish.n"] = "admin"
 	status := InsertUserRecord("manish.n", "admin")
-	fmt.Println("status:" , status)
+	fmt.Println("status:", status)
 
 	//UsersRecord["dhoni007"] = "admin"
 	status = InsertUserRecord("dhoni007", "admin")
-	fmt.Println("status:" , status)
+	fmt.Println("status:", status)
 
 	//UsersRecord["srk"] = "admin"
 	status = InsertUserRecord("srk", "admin")
-	fmt.Println("status:" , status)
+	fmt.Println("status:", status)
 
 	//UsersRecord["chandler"] = "admin"
 	status = InsertUserRecord("chandler", "admin")
-	fmt.Println("status:" , status)
+	fmt.Println("status:", status)
 
-
-
+	/*
 	allUsers = append(allUsers, globals.User{"manish.n"})
 	allUsers = append(allUsers, globals.User{"dhoni007"})
 	allUsers = append(allUsers, globals.User{"srk"})
 	allUsers = append(allUsers, globals.User{"chandler"})
 
-
-
-	tweet1 := globals.Tweet{TID:uuid.New().String(), Content:"Mujhe bhi T20 khelna h", Timestamp:time.Now().Unix(), UserId:"dhoni007"}
-	tweet2 := globals.Tweet{TID:uuid.New().String(), Content:"Zero releasing December 2018", Timestamp:time.Now().Unix(), UserId:"srk"}
-	tweet3 := globals.Tweet{TID:uuid.New().String(), Content:"Could I be wearing anymore clothes", Timestamp:time.Now().Unix(), UserId:"chandler"}
-	tweet4 := globals.Tweet{TID:uuid.New().String(), Content:"SDE at Google", Timestamp:time.Now().Unix(), UserId:"manish.n"}
-	tweet5 := globals.Tweet{TID:uuid.New().String(), Content:"Virat ne mujhe nikal diya T20 team se", Timestamp:time.Now().Unix(), UserId:"dhoni007"}
-
-
+	tweet1 := globals.Tweet{TID: uuid.New().String(), Content: "Mujhe bhi T20 khelna h", Timestamp: time.Now().Unix(), UserId: "dhoni007"}
+	tweet2 := globals.Tweet{TID: uuid.New().String(), Content: "Zero releasing December 2018", Timestamp: time.Now().Unix(), UserId: "srk"}
+	tweet3 := globals.Tweet{TID: uuid.New().String(), Content: "Could I be wearing anymore clothes", Timestamp: time.Now().Unix(), UserId: "chandler"}
+	tweet4 := globals.Tweet{TID: uuid.New().String(), Content: "SDE at Google", Timestamp: time.Now().Unix(), UserId: "manish.n"}
+	tweet5 := globals.Tweet{TID: uuid.New().String(), Content: "Virat ne mujhe nikal diya T20 team se", Timestamp: time.Now().Unix(), UserId: "dhoni007"}
+*/
 	tid := StorageInsertTweets(globals.User{"dhoni007"}, "Mujhe bhi T20 khelna h")
 	fmt.Println("tid", tid)
 	tid = StorageInsertTweets(globals.User{"dhoni007"}, "Virat ne mujhe nikal diya T20 team se")
@@ -64,7 +60,7 @@ func insertDummies(){
 	UserTweet["manish.n"] = append(UserTweet["manish.n"], tweet4)
 	UserTweet["chandler"] = append(UserTweet["chandler"], tweet3)
 	UserTweet["srk"] = append(UserTweet["srk"], tweet2)
-*/
+
 
 	status := InsertUserRecord("agamTesting", "admin")
 	fmt.Println("insert status:" , status)
@@ -103,5 +99,6 @@ func insertDummies(){
 		for _, name := range allUsersList.List {
 			fmt.Println(name.UserName)
 		}
-	}
-	}
+
+	}*/
+}

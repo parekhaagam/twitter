@@ -31,6 +31,7 @@ func getEtcdClientObjects() (*clientv3.Client,clientv3.KV,error){
 		etcdClient.Watcher = namespace.NewWatcher(etcdClient.Watcher, APP_PREFIX)
 		etcdClient.Lease = namespace.NewLease(etcdClient.Lease, APP_PREFIX)
 	}
+
 	return etcdClient, kvStore,nil
 }
 
@@ -213,17 +214,21 @@ func StorageGetFollowersTweets(followings []globals.User)[]globals.Tweet{
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
 
 	var followingTweet []globals.Tweet
-	var tweetStored []string
+
 	twitterTweet := []globals.Tweet{}
 
 	for _,following := range followings{
 
+		var tweetStored []string
 		tweetStored = append(tweetStored, USER_TWEET_MAP_PREFIX, following.UserName)
 		allTweetInsertResponse,_ := etcdClient.Get(context.TODO(), strings.Join(tweetStored, ""))
 
+		fmt.Println("storage get followers tweets", following.UserName)
+		fmt.Println(len(allTweetInsertResponse.Kvs))
 
 		if allTweetInsertResponse != nil && len(allTweetInsertResponse.Kvs) != 0 {
 			json.Unmarshal(allTweetInsertResponse.Kvs[0].Value, &twitterTweet)
+			fmt.Println("twitterTweet:", twitterTweet[0].Content)
 			followingTweet = append(followingTweet, twitterTweet...)
 		}
 	}
