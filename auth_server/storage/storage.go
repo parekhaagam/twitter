@@ -66,7 +66,7 @@ func getToken(userId string) (string)  {
 */
 func getEtcdClientObjects() (*clientv3.Client,clientv3.KV,error){
 	if etcdClient==nil && kvStore == nil{
-		etcdClient, etcdErr = clientv3.New(clientv3.Config{Endpoints: []string{RAFT_ENDPOINT}})
+		etcdClient, etcdErr = clientv3.New(clientv3.Config{Endpoints: []string{RAFT_ENDPOINT1,RAFT_ENDPOINT2, RAFT_ENDPOINT3}})
 		if etcdErr != nil {
 			// handle error!
 		}
