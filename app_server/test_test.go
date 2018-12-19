@@ -3,18 +3,14 @@ package app_server
 import (
 	//"github.com/parekhaagam/twitter/globals"
 	"fmt"
-	"github.com/parekhaagam/twitter/app_server/storage/memory"
 	"github.com/parekhaagam/twitter/globals"
-
-	"github.com/parekhaagam/twitter/app_server/storage"
 	"testing"
 )
 func TestLogin(t *testing.T){
 
-	storage.InitGlobals()
-	var status = UserExist("manish.n")
-	pass := memory.UsersRecord["manish.n"]
-	status = status &&  pass == "admin"
+	InitGlobals()
+	status := CheckUserRecord("manish.n", "admin")
+
 	if status {
 		fmt.Println("Passed : ","TestLogin")
 	}else {
@@ -23,71 +19,56 @@ func TestLogin(t *testing.T){
 }
 
 func TestSignUp(t *testing.T){
-	storage.InitGlobals()
-	var status = InsertUser("testUser", "admin")
-	pass := memory.UsersRecord["testUser"]
-	status = status &&  pass == "admin"
-	if status{
-		fmt.Print("Passed : ","TestSignUp")
-	}else{
-		t.Fatal("Error : unable to create new user")
+
+	InitGlobals()
+	status := InsertUserRecord("agamTesting", "admin")
+	fmt.Println("insert status:" , status)
+	status = CheckUserRecord("agamTesting", "admin")
+	fmt.Println("check status:" , status)
+
+	if status {
+		fmt.Println("Passed : ","TestSignUp")
+	}else {
+		t.Fatal("Error : SignUp fails")
 	}
 }
 
 func TestTweetPost(t *testing.T){
-	storage.InitGlobals()
-	currUser := globals.User{"manish.n"}
-	tweet_content := "testing tweet"
-	TID := InsertTweets(currUser, tweet_content)
-	_, exists := memory.TweetIdStored[TID]
 
-	tweetFound := false
-	for _,tweet := range memory.UserTweet["manish.n"]{
-		if tweet.TID == TID{
-			tweetFound = true
-		}
-	}
-
-	print(exists)
-	if exists && tweetFound{
-		fmt.Println("Passed : ", "TestTweetPost")
+	InitGlobals()
+	tid := StorageInsertTweets(globals.User{"manish.n"}, "Testing tweet")
+	fmt.Println("tid", tid)
+	tweetsList := StorageGetFollowersTweets([]globals.User{globals.User{"manish.n"}})
+	if tweetsList[0].Content =="Testing tweet"{
+		fmt.Println("insert tweet passed")
 	}else{
-		t.Fatal("Error in testTweetPost")
+		fmt.Println("insert tweet failed")
 	}
 }
 
 
 func TestFollowAllUser(t *testing.T) {
-	storage.InitGlobals()
-	currUser := globals.User{"manish.n"}
-	fmt.Println(memory.AllUsers)
-	count := len(memory.AllUsers)
-	list := make([]string,0)
-	for _, user := range memory.AllUsers {
-		if user.UserName != currUser.UserName {
-			fmt.Println("Following ", user.UserName)
-			list = append(list, user.UserName)
-		}
+
+	InitGlobals()
+
+	StorageFollowUser(globals.User{"manish.n"}, []string{"dhoni007"})
+	usersFollow := GetAllFollowingUser(globals.User{"manish.n"})
+	if usersFollow[0].UserName == "dhoni007"{
+		fmt.Println("followUser passed")
+	}else{
+		fmt.Println("followUser failed")
 	}
-	FollowUser(currUser, list[0:])
-	follows := memory.Followers[currUser.UserName]
-	followCount := len(follows)
-	fmt.Println(follows)
-	if followCount == count-1 {
-		fmt.Println("Passed : ", "TestFollowNewUser")
-	} else {
-		t.Fatal("Error in TestFollowNewUser")
-	}
+
 }
 
 func TestFollowersTweet(t *testing.T) {
-	storage.InitGlobals()
+	InitGlobals()
 	currUser := globals.User{"manish.n"}
 
 	selectedUserNames := []string{"dhoni007", "srk", "chandler"}
-	FollowUser(currUser, selectedUserNames)
+	StorageFollowUser(currUser, selectedUserNames)
 
-	following := memory.Followers[currUser.UserName]
+	following := GetAllFollowingUser(currUser)
 	tweets := GetFollowersTweets(following)
 	for _, tweet := range tweets {
 		userFound := false
