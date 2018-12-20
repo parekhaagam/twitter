@@ -3,7 +3,7 @@ package controllers
 import (
 	"context"
 	"fmt"
-	spb "github.com/parekhaagam/twitter/app_server/contract"
+	spb "github.com/parekhaagam/twitter/web_server/contracts/storage"
 	"github.com/parekhaagam/twitter/globals"
 	pb "github.com/parekhaagam/twitter/web_server/contracts/authentication"
 	"google.golang.org/grpc"
@@ -56,7 +56,9 @@ func Show_users(w http.ResponseWriter, r *http.Request) {
 
 			getUsersResponse, err := tweetClient.GetAllUsers(ctx, &spb.GetUsersRequest{LoggedInUserId:loggedInUserId})
 			if err != nil {
-				log.Fatalf("could not greet: %v", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+				return
 			}
 
 
@@ -109,18 +111,26 @@ func ValidateLogin(destURL string) http.HandlerFunc {
 
 		emailId := strings.Join(r.Form["EmailId"], "")
 		//password := strings.Join(r.Form["password"], "")
-		isValidUser :=userExist(emailId)
-		if isValidUser {
+		isValidUser,err :=userExist(emailId)
+		if err!=nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}else if isValidUser {
 			fmt.Println("")
 			r.Header.Set("Cookie", "")
-			token:=GetToken(emailId)
-			var tokenCookie = http.Cookie{Name: "token", Value: token}
-			var userIdCookie = http.Cookie{Name: "userId", Value: emailId}
-			http.SetCookie(w, &tokenCookie)
-			http.SetCookie(w, &userIdCookie)
-			r.AddCookie(&tokenCookie)
-			r.AddCookie(&userIdCookie)
-			http.Redirect(w, r, destURL, http.StatusSeeOther)
+			token,err:=GetToken(emailId)
+			if err!=nil {
+				w.Write([]byte(err.Error()))
+			} else {
+				var tokenCookie = http.Cookie{Name: "token", Value: token}
+				var userIdCookie = http.Cookie{Name: "userId", Value: emailId}
+				http.SetCookie(w, &tokenCookie)
+				http.SetCookie(w, &userIdCookie)
+				r.AddCookie(&tokenCookie)
+				r.AddCookie(&userIdCookie)
+				http.Redirect(w, r, destURL, http.StatusSeeOther)
+			}
 		} else {
 			w.Write([]byte("Invalid UserId"))
 		}
@@ -132,17 +142,25 @@ func ValidateSignup(destURL string) http.HandlerFunc {
 		r.ParseForm()
 		emailId := strings.Join(r.Form["EmailId"], "")
 		password := strings.Join(r.Form["password"], "")
-		isNewUserInserted := insertUser(emailId,password)
-		if isNewUserInserted {
+		isNewUserInserted,err := insertUser(emailId,password)
+		if err!=nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		} else if isNewUserInserted {
 			r.Header.Set("Cookie", "")
-			token:=GetToken(emailId)
-			var tokenCookie = http.Cookie{Name: "token", Value: token}
-			var userIdCookie = http.Cookie{Name: "userId", Value: emailId}
-			http.SetCookie(w, &tokenCookie)
-			http.SetCookie(w, &userIdCookie)
-			r.AddCookie(&tokenCookie)
-			r.AddCookie(&userIdCookie)
-			http.Redirect(w, r, destURL, http.StatusSeeOther)
+			token,err:=GetToken(emailId)
+			if err!=nil {
+				w.Write([]byte("Invalid userid"))
+			} else {
+				var tokenCookie = http.Cookie{Name: "token", Value: token}
+				var userIdCookie = http.Cookie{Name: "userId", Value: emailId}
+				http.SetCookie(w, &tokenCookie)
+				http.SetCookie(w, &userIdCookie)
+				r.AddCookie(&tokenCookie)
+				r.AddCookie(&userIdCookie)
+				http.Redirect(w, r, destURL, http.StatusSeeOther)
+			}
 		} else {
 			w.Write([]byte("Invalid userid"))
 		}
@@ -165,7 +183,9 @@ func Follow_users(next http.HandlerFunc) http.HandlerFunc {
 			usersList := selected[0:]
 			followUserResponse,err := tweetClient.FollowUser(ctx, &spb.FollowUserRequest{UserName:userIdCookie.Value, UserNames:usersList})
 			if err != nil {
-				log.Fatalf("Something went wrong --> %v", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+				return
 			}
 
 			fmt.Println(followUserResponse.Status)
@@ -198,7 +218,9 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 
 			insertTweetResponse, err := tweetClient.InsertTweets(ctx, &spb.InsertTweetRequest{User:&spb.User{UserName:loggedInUser}, Content:tweet_content[0]})
 			if err != nil {
-				log.Fatalf("Something went wrong --> %v", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+				return
 			}
 			fmt.Println(insertTweetResponse.TID)
 
@@ -210,7 +232,9 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 		users:= &spb.User{UserName:loggedInUser}
 		getFollwerResponse, err := tweetClient.GetFollowersTweets(ctx, &spb.GetFollowersRequest{User:users})
 		if err != nil {
-			log.Fatalf("Something went wrong --> %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
 		}
 		fmt.Println(getFollwerResponse.Tweets)
 
@@ -229,7 +253,9 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 		followingCount := getFollwerResponse.FollowingNumber
 		t, err := template.ParseFiles(WebHTMLDir + "/feed.html")
 		if err != nil {
-			log.Print("500 Iternal Server Error", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
 		}
 		c, cookieErr := httpRequest.Cookie("token")
 		if cookieErr == nil {
@@ -247,8 +273,9 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 				log.Print("error while executing ", err)
 			}
 		} else {
-			w.WriteHeader(500)
-			//w.Write([]byte("Error"))
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("Internal Server Error"))
+			return
 		}
 	} else {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -256,15 +283,15 @@ func Feed(w http.ResponseWriter, httpRequest *http.Request) {
 	}
 }
 
-func GetToken(userid string)  string{
+func GetToken(userid string)  (string,error){
 	authenticationClient := getAuthServerConnection()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	r, err := authenticationClient.GetToken(ctx, &pb.GetTokenRequest{Userid: userid})
 	if err != nil {
-		log.Fatalf("Something went wrong --> %v", err)
+		return "",nil
 	}
-	return r.Token;
+	return r.Token,nil;
 
 }
 func getStorageClient() (spb.StorageClient){
@@ -287,21 +314,24 @@ func getAuthServerConnection() (pb.AuthClient){
 	}
 	return authClient
 }
-func insertUser(userId string,password string) (bool){
+func insertUser(userId string,password string) (bool,error){
 	userDBClient := getStorageClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	r, _ := userDBClient.InsertUser(ctx, &spb.InsertUserRequest{UserName: userId,Password:password})
-	return r.Success
+	r, err := userDBClient.InsertUser(ctx, &spb.InsertUserRequest{UserName: userId,Password:password})
+	if err!=nil {
+		return false,err
+	}
+	return r.Success,nil
 }
-func userExist(userId string) (bool){
+func userExist(userId string) (bool,error){
 	userDBClient := getStorageClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	r, err := userDBClient.UserExist(ctx, &spb.UserExistRequest{UserName: userId})
 	if err!=nil{
 		fmt.Println(err)
-		return false
+		return false,err
 	}
-	return r.Success
+	return r.Success,nil
 }

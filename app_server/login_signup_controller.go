@@ -1,11 +1,6 @@
 package app_server
 
-import (
-	"github.com/parekhaagam/twitter/app_server/storage/memory"
-	"github.com/parekhaagam/twitter/globals"
-)
-
-func UserExist(userName string)bool{
+/*func UserExist(userName string)bool{
 
 	memory.UserRecordLock.Lock()
 	defer memory.UserRecordLock.Unlock()
@@ -18,8 +13,8 @@ func UserExist(userName string)bool{
 	}
 
 }
-
-func InsertUser(newUserName string, password string)bool{
+*/
+/*func InsertUser(newUserName string, password string)bool{
 
 	//globals.UserRecordLock.Lock()
 	//defer globals.UserRecordLock.Unlock()
@@ -31,12 +26,12 @@ func InsertUser(newUserName string, password string)bool{
 	}else {
 		return false
 	}
-}
+}*/
 
 //var usersDataCache []globals.UserFollowed = nil
 
 //Returns true if user 1 follows user 2
-func Follows(user1 globals.User, user2 globals.User) bool{
+/*func Follows(user1 globals.User, user2 globals.User) bool{
 	followers := memory.Followers
 	follows,ok := followers[user1.UserName]
 
@@ -50,9 +45,9 @@ func Follows(user1 globals.User, user2 globals.User) bool{
 		}
 	}
 	return doesFollow
-}
+}*/
 
-func GetAllFollowing(user globals.User) ([]globals.User){
+/*func GetAllFollowing(user globals.User) ([]globals.User){
 	followers := memory.Followers
 	follows,ok := followers[user.UserName]
 	if !ok {
@@ -60,7 +55,7 @@ func GetAllFollowing(user globals.User) ([]globals.User){
 	}
 	return follows
 }
-
+*/
 /*func getTweets(emailId string)[]{
 
 }*/

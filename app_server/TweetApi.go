@@ -1,17 +1,14 @@
 package app_server
 
 import (
-	"fmt"
-
 	"github.com/parekhaagam/twitter/app_server/storage/memory"
 	"github.com/parekhaagam/twitter/globals"
-	"github.com/google/uuid"
 	"sort"
 	"strconv"
 	"time"
 )
 
-func getTweets(userId string)[]globals.Tweet{
+/*func getTweets(userId string)[]globals.Tweet{
 	return memory.UserTweet[userId]
 }
 
@@ -46,7 +43,7 @@ func InsertTweets(user globals.User, content string)string {
 		return TID
 		}
 
-
+*/
 
 func GetFollowersTweets(followings []globals.User)[]globals.Tweet{
 

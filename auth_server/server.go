@@ -19,12 +19,18 @@ type AuthServer struct {
 }
 type AuthServerImpl struct{}
 func (a *AuthServerImpl)GetToken(ctx context.Context, in *pb.GetTokenRequest) (*pb.GetTokenReply, error){
-	token := storage.GetOrCreateToken(in.Userid)
+	token,err := storage.GetOrCreateToken(in.Userid)
+	if err!=nil {
+		return nil,err
+	}
 	return &pb.GetTokenReply{Token:token},nil
 }
 
 func (a *AuthServerImpl) Authenticate(ctx context.Context, in *pb.AuthenticateRequest) (*pb.AuthenticateReply, error){
-	isTokenAvailable := authenticate(in.Token)
+	isTokenAvailable,err := authenticate(in.Token)
+	if err != nil {
+		return nil,err
+	}
 	return &pb.AuthenticateReply{Success:isTokenAvailable},nil
 }
 func NewAuthServer(cfg *Config) (error) {
@@ -66,6 +72,6 @@ func (w *AuthServer) Shutdown(ctx context.Context) error {
 		return token
 	}
 }*/
-func authenticate(token string) (bool) {
+func authenticate(token string) (bool,error) {
 	return storage.IsTokenValid(token)
 }

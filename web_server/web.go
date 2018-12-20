@@ -66,7 +66,7 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			defer cancel()
 			reply, err := authenticationClient.Authenticate(ctx, &pb.AuthenticateRequest{Token:token.Value })
 			if err != nil {
-				log.Fatalf("Something went wrong ---> %v", err)
+				w.Write([]byte(err.Error()))
 			}
 			if reply.Success{
 				next.ServeHTTP(w, r)

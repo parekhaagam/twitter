@@ -25,7 +25,10 @@ func (a *StorageServerImpl)InsertTweets(ctx context.Context, in *pb.InsertTweetR
 
 	user := globals.User{in.User.UserName}
 	//tid := InsertTweets(user, in.Content)
-	tid:= StorageInsertTweets(user, in.Content)
+	tid,error:= StorageInsertTweets(user, in.Content)
+	if error!=nil {
+		return nil,error
+	}
 	return &pb.InsertTweetReply{TID:tid},nil
 }
 
@@ -37,14 +40,19 @@ func (a *StorageServerImpl)GetFollowersTweets(ctx context.Context, in *pb.GetFol
 	currUser := globals.User{in.User.UserName}
 
 	//following := GetAllFollowing(currUser)
-	following := GetAllFollowingUser(currUser)
+	following,err := GetAllFollowingUser(currUser)
+	if err!=nil {
+		return nil,err
+	}
 
 	followingNumber := len(following)
 	following = append(following, currUser)
 
 	//tweets := GetFollowersTweets(following)
-	tweets := StorageGetFollowersTweets(following)
-
+	tweets,error := StorageGetFollowersTweets(following)
+	if error!=nil {
+		return nil,error
+	}
 	fmt.Println(tweets)
 
 	var tweetArray []*pb.Tweet
@@ -59,8 +67,10 @@ func (a *StorageServerImpl) GetAllUsers(ctx context.Context, in *pb.GetUsersRequ
 
 
 	//userLists := Get_all_users(in.LoggedInUserId)
-	userLists := Storage_Get_all_users(in.LoggedInUserId)
-
+	userLists,error := Storage_Get_all_users(in.LoggedInUserId)
+	if error!=nil {
+		return nil,error
+	}
 	var users []*pb.UserFollowed
 	for _,eachUser := range userLists.List{
 		a:= &pb.UserFollowed{UserName:eachUser.UserName, Isfollowed:eachUser.Isfollowed}
@@ -74,14 +84,20 @@ func (a *StorageServerImpl) GetAllUsers(ctx context.Context, in *pb.GetUsersRequ
 func (a *StorageServerImpl) FollowUser(ctx context.Context, in *pb.FollowUserRequest) (*pb.FollowUserResponse, error) {
 
 	//FollowUser(globals.User{in.UserName}, in.UserNames)
-	StorageFollowUser(globals.User{in.UserName}, in.UserNames)
+	error :=StorageFollowUser(globals.User{in.UserName}, in.UserNames)
+	if error!=nil {
+		return nil,error
+	}
 
 	return &pb.FollowUserResponse{Status:true},nil
 }
 func (a *StorageServerImpl) InsertUser(ctx context.Context, in *pb.InsertUserRequest) (*pb.InsertUserResponse, error) {
 
 	fmt.Println("inside insert user")
-	status := InsertUserRecord(in.UserName, in.Password)
+	status,error := InsertUserRecord(in.UserName, in.Password)
+	if error!=nil {
+		return nil,error
+	}
 	fmt.Println("status of Insert user record: ", status)
 
 	/*fmt.Println("status of Insert user record: ", status)
@@ -92,7 +108,10 @@ func (a *StorageServerImpl) InsertUser(ctx context.Context, in *pb.InsertUserReq
 func (a *StorageServerImpl) UserExist(ctx context.Context, in *pb.UserExistRequest) (*pb.UserExistResponse, error) {
 
 	//isSuccess := UserExist(in.UserName)
-	isSuccess := CheckUserExist(in.UserName)
+	isSuccess,error := CheckUserExist(in.UserName)
+	if error!=nil {
+		return nil,error
+	}
 	return &pb.UserExistResponse{Success:isSuccess},nil
 }
 

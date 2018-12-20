@@ -53,5 +53,5 @@ type UserFollowed struct{
 //Used for "Search Users" Page
 type UserList struct{
 	List []UserFollowed `json:"UserFollowed"`
-	NextPage bool `json:"NextPage"`
+	NextPage bool `json:"NextPage"`  //to show user profile page
 }

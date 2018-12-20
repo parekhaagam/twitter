@@ -36,20 +36,26 @@ func getEtcdClientObjects() (*clientv3.Client,clientv3.KV,error){
 	return etcdClient, kvStore,nil
 }
 
-func InsertUserRecord(userId string , password string)(bool){
+func InsertUserRecord(userId string , password string)(bool,error){
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
 	if etcdErr != nil {
-		//implement while considering exceptions
+		return false,etcdErr
 	}
 
 	fmt.Println("InsertUserRecord user id:" , userId)
-	if !CheckUserExist(userId) {
+	isUserExist,err :=CheckUserExist(userId)
+	if err!=nil {
+		return false,err
+	} else if !isUserExist {
 
 		log.Info("InsertUserRecord")
 		//log.Debug("userId:%v \t password: %v", userId, password)
 		var userRecord []string
 		userRecord = append(userRecord, USER_RECORD_MAP_PREFIEX, userId)
 		response, responseErr := etcdClient.Put(context.TODO(), strings.Join(userRecord, ""), password)
+		if responseErr!=nil {
+			return false,responseErr
+		}
 		fmt.Println("insert single user", response, responseErr)
 
 		//var allUser []string
@@ -57,32 +63,37 @@ func InsertUserRecord(userId string , password string)(bool){
 		var allUserRecord [] string
 		allUserRecord = append(allUserRecord, ALL_USER_LIST_PREFIX)
 
-		allUserResponse,_ := etcdClient.Get(context.TODO(), strings.Join(allUserRecord, ""))
+		allUserResponse,error := etcdClient.Get(context.TODO(), strings.Join(allUserRecord, ""))
+		if error!=nil {
+			return false,error
+		}
 		var allUsersList []globals.User
 		if allUserResponse != nil && len(allUserResponse.Kvs) != 0 {
-			json.Unmarshal(allUserResponse.Kvs[0].Value, &allUsersList)
+			unMarshalError := json.Unmarshal(allUserResponse.Kvs[0].Value, &allUsersList)
+			if unMarshalError!=nil {
+				return false,unMarshalError
+			}
 		}else{
 			allUsersList = []globals.User{}
 		}
 
 		allUsersList = append(allUsersList, globals.User{userId})
-		jsonUserListObject,_ := json.Marshal(allUsersList)
+		jsonUserListObject,marshalError := json.Marshal(allUsersList)
+		if marshalError!=nil {
+			return false,marshalError
+		}
 		_, allUserRespoError := etcdClient.Put( context.TODO(), strings.Join(allUserRecord, ""), string(jsonUserListObject))
 
 		if allUserRespoError != nil{
-			log.Fatal(allUserResponse)
+			return false,allUserRespoError
 		}
 
 		fmt.Println("insert in all user", response,responseErr)
 		} else{
-		return false
+		return false,nil
 	}
-	/*var allUserRecord []string
-	allUserRecord = append(allUserRecord,APP_PREFIX, ALL_USER_LIST_PREFIX)
-	etcdClient.Get(context.TODO(),strings.Join(allUserRecord,""))
-	currUser := globals.User{"manish.n"}
-	*/
-	return true
+
+	return true,nil
 }
 
 func CheckUserRecord(userId string, password string ) (bool)  {
@@ -108,15 +119,14 @@ func CheckUserRecord(userId string, password string ) (bool)  {
 	return false
 }
 
-func CheckUserExist(userId string) (bool)  {
+func CheckUserExist(userId string) (bool,error)  {
 
 	log.Info("CheckUserExist")
 	//log.Debug("userId:%v ", userId)
 
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
 	if etcdErr != nil {
-		//implement while considering exceptions
-		log.Fatal(etcdErr)
+		return false,etcdErr
 	}
 
 	var userRecord []string
@@ -124,14 +134,14 @@ func CheckUserExist(userId string) (bool)  {
 	responsePassword,_ :=etcdClient.Get(context.TODO(),strings.Join(userRecord,""))
 	if responsePassword !=nil && responsePassword.Kvs !=nil {
 		fmt.Println("response password false")
-		return true
+		return true,nil
 	}
 	fmt.Println("response password true")
-	return false
+	return false,nil
 
 }
 
-func StorageFollowUser(follower globals.User, selectedUserNames []string){
+func StorageFollowUser(follower globals.User, selectedUserNames []string) error{
 
 	log.Info("StorageFollowUser")
 	//log.Debug("follower userId:%v \tselected User to follow:%v", follower.UserName, selectedUserNames)
@@ -139,7 +149,7 @@ func StorageFollowUser(follower globals.User, selectedUserNames []string){
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
 	if etcdErr != nil {
 		//implement while considering exceptions
-		log.Fatal(etcdErr)
+		return etcdErr
 	}
 
 	follows := make([]globals.User, 0)
@@ -153,17 +163,17 @@ func StorageFollowUser(follower globals.User, selectedUserNames []string){
 	jsonFollowerUserObject,_ := json.Marshal(follows)
 	response, responseErr := etcdClient.Put(context.TODO(), strings.Join(allUser, ""), string(jsonFollowerUserObject))
 	fmt.Println("StorageFollowUser: ", response, responseErr)
+	return nil
 }
 
-func GetAllFollowingUser(user globals.User) ([]globals.User){
+func GetAllFollowingUser(user globals.User) ([]globals.User,error){
 
 	log.Info("GetAllFollowingUser")
 	//log.Debug("userId:%v ", user.UserName)
 
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
 	if etcdErr != nil {
-		//implement while considering exceptions
-		log.Fatal(etcdErr)
+		return nil,etcdErr
 	}
 
 	var allUser []string
@@ -175,15 +185,17 @@ func GetAllFollowingUser(user globals.User) ([]globals.User){
 		json.Unmarshal(allUserResponse.Kvs[0].Value, &userList)
 	}
 
-	return userList
+	return userList,nil
 }
 
-func StorageInsertTweets(user globals.User, content string)string{
+func StorageInsertTweets(user globals.User, content string) (string,error){
 
 	log.Info("StorageInsertTweets")
 	//log.Debug("userId:%v \t content string:%v ", user.UserName, content)
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
-
+	if etcdErr!=nil {
+		return "",ETCD_ERROR
+	}
 	TID := uuid.New().String()
 	fmt.Println(TID)
 
@@ -191,6 +203,9 @@ func StorageInsertTweets(user globals.User, content string)string{
 	tweetTIDStored = append(tweetTIDStored, TWEET_TID_STORED_MAP_PREFIX, TID)
 
 	response, responseErr := etcdClient.Put(context.TODO(), strings.Join(tweetTIDStored, ""), TID)
+	if responseErr!=nil {
+		return "",responseErr
+	}
 	fmt.Println("storage insert tweet", response, responseErr )
 
 	tmp := globals.Tweet{
@@ -202,7 +217,10 @@ func StorageInsertTweets(user globals.User, content string)string{
 
 	var tweetStored []string
 	tweetStored = append(tweetStored, USER_TWEET_MAP_PREFIX, user.UserName)
-	allTweetInsertResponse,_ := etcdClient.Get(context.TODO(), strings.Join(tweetStored, ""))
+	allTweetInsertResponse,getError := etcdClient.Get(context.TODO(), strings.Join(tweetStored, ""))
+	if getError!=nil {
+		return "",getError
+	}
 
 	var twitterTweet []globals.Tweet
 	fmt.Println(allTweetInsertResponse.Kvs)
@@ -210,31 +228,35 @@ func StorageInsertTweets(user globals.User, content string)string{
 		twitterTweet = []globals.Tweet{tmp}
 	}else{
 		twitterTweet = []globals.Tweet{}
-		json.Unmarshal(allTweetInsertResponse.Kvs[0].Value, &twitterTweet)
+		unMarshalError :=json.Unmarshal(allTweetInsertResponse.Kvs[0].Value, &twitterTweet)
+		if unMarshalError!=nil {
+			return "",unMarshalError
+		}
 		twitterTweet = append(twitterTweet, tmp)
 	}
 
-	tweetJsonObject, err := json.Marshal(twitterTweet)
-	if err != nil{
-		log.Fatal(err.Error())
+	tweetJsonObject, marshalError := json.Marshal(twitterTweet)
+	if marshalError != nil{
+		return "",marshalError
 	}
 	_, tweetInsertResponseError := etcdClient.Put(context.TODO(), strings.Join(tweetStored, ""), string(tweetJsonObject))
 
 	if tweetInsertResponseError != nil{
-		log.Fatal(tweetInsertResponseError.Error())
-		return TID
+		return "",tweetInsertResponseError
 	}
 
-	return ""
+	return TID,nil
 }
 
-func StorageGetFollowersTweets(followings []globals.User)[]globals.Tweet{
+func StorageGetFollowersTweets(followings []globals.User) ([]globals.Tweet,error){
 
 	log.Info("StorageGetFollowersTweets")
 	log.Debug("following Users id  ", followings)
 
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
-
+	if etcdErr!=nil {
+		return nil,ETCD_ERROR
+	}
 	var followingTweet []globals.Tweet
 
 	twitterTweet := []globals.Tweet{}
@@ -263,10 +285,10 @@ func StorageGetFollowersTweets(followings []globals.User)[]globals.Tweet{
 		followingTweet[index].TimeMessage = TimeToString(followingTweet[index].Timestamp)
 	}
 
-	return followingTweet
+	return followingTweet,nil
 }
 
-func Storage_Get_all_users(loggedInUserId string) (ul globals.UserList){
+func Storage_Get_all_users(loggedInUserId string) (globals.UserList,error){
 
 	log.Info("Storage_Get_all_users")
 	log.Debug("user id: ", loggedInUserId)
@@ -275,7 +297,10 @@ func Storage_Get_all_users(loggedInUserId string) (ul globals.UserList){
 
 	var allUser []string
 	allUser = append(allUser, ALL_USER_LIST_PREFIX)
-	allUserResponse,_ := etcdClient.Get(context.TODO(), strings.Join(allUser, ""))
+	allUserResponse,etcdError := etcdClient.Get(context.TODO(), strings.Join(allUser, ""))
+	if etcdError!=nil {
+		return globals.UserList{},ETCD_ERROR
+	}
 	var allUsers []globals.User
 	if allUserResponse != nil && len(allUserResponse.Kvs) != 0 {
 		json.Unmarshal(allUserResponse.Kvs[0].Value, &allUsers)
@@ -287,22 +312,28 @@ func Storage_Get_all_users(loggedInUserId string) (ul globals.UserList){
 	loggedInUser := globals.User{loggedInUserId} //should come from session
 	for _,user := range allUsers {
 		if user.UserName != loggedInUser.UserName {
-			users = append(users, globals.UserFollowed{user.UserName, StorageFollows(loggedInUser, user)})
+			isFollows,err :=StorageFollows(loggedInUser, user)
+			if err!=nil {
+				return globals.UserList{},err
+			}
+			users = append(users, globals.UserFollowed{user.UserName, isFollows})
 		}
 	}
 	fmt.Println(users)
-	return globals.UserList{users, false}
+	return globals.UserList{users, false},nil
 
 }
 
-func StorageFollows(user1 globals.User, user2 globals.User) bool{
+func StorageFollows(user1 globals.User, user2 globals.User) (bool,error){
 
 	log.Info("StorageFollows")
 	log.Debug("first user id: \t second user id:", user1.UserName, user2.UserName)
 
-	followers := GetAllFollowingUser(user1)
-
-	doesFollow := false
+	followers,err := GetAllFollowingUser(user1)
+	if err!=nil {
+		return false,err
+	} else {
+		doesFollow := false
 
 		for _,followedUser := range followers {
 			if followedUser.UserName == user2.UserName {
@@ -310,5 +341,7 @@ func StorageFollows(user1 globals.User, user2 globals.User) bool{
 				break
 			}
 		}
-	return doesFollow
+		return doesFollow,nil
+	}
+
 }

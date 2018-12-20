@@ -2,12 +2,16 @@ package auth_server
 
 import (
 	"fmt"
+	"github.com/parekhaagam/twitter/auth_server/storage"
 	"sync"
 	"testing"
 )
 
 func TestAuthGetToken(t *testing.T)  {
-	var  token  = getToken("abc@gmail.com")
+	var  token,err  = storage.GetOrCreateToken("abc@gmail.com")
+	if err!=nil {
+		t.Fatal("Error : TestAuthGetToken")
+	}
 	if token!="" {
 		fmt.Println("Passed : ","TestAuthGetToken")
 	}else {
@@ -21,7 +25,10 @@ func TestAuthGetTokenConcurrent(t *testing.T)  {
 		wg.Add(1)
 		go func(userId string) {
 			defer wg.Done()
-			var  token  = getToken(userId)
+			var  token,err  = storage.GetOrCreateToken(userId)
+			if err!=nil {
+				t.Fatal("Error : TestAuthGetTokenConcurrent")
+			}
 			set[token] = userId
 		}("def@gmail.com")
 	}
@@ -34,9 +41,15 @@ func TestAuthGetTokenConcurrent(t *testing.T)  {
 	}
 }
 func TestAuthAuthenticateToken(t *testing.T)  {
-	var  token  = getToken("abc@gmail.com")
+	var  token,err  = storage.GetOrCreateToken("abc@gmail.com")
+	if err!=nil {
+		t.Fatal("Error : TestAuthAuthenticateToken")
+	}
 	if token!="" {
-		if !IsTokenValid(token){
+		isTokenValid,err :=storage.IsTokenValid(token)
+		if err!=nil {
+			t.Fatal("TestAuthAuthenticateToken")
+		}else if !isTokenValid{
 			t.Fatal("Error : Token not authenticated properly!")
 		}
 	}else {
@@ -45,7 +58,10 @@ func TestAuthAuthenticateToken(t *testing.T)  {
 	fmt.Println("Passed : ","TestAuthAuthenticateToken")
 }
 func TestAuthAuthenticateTokenConcurrent(t *testing.T)  {
-	var  token  = getToken("abc@gmail.com")
+	var  token,err  = storage.GetOrCreateToken("abc@gmail.com")
+	if err!=nil {
+		t.Fatal("TestAuthAuthenticateTokenConcurrent")
+	}
 	set := make(map[string]int)
 	if token!="" {
 		var wg sync.WaitGroup
@@ -53,7 +69,10 @@ func TestAuthAuthenticateTokenConcurrent(t *testing.T)  {
 			wg.Add(1)
 			go func(token string) {
 				defer wg.Done()
-				if !IsTokenValid(token){
+				isTokenValid,err :=storage.IsTokenValid(token)
+				if err!=nil {
+					t.Fatal("TestAuthAuthenticateTokenConcurrent")
+				}else if !isTokenValid{
 					set[token]=1
 				}
 			}(token)
