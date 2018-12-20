@@ -1,4 +1,4 @@
-package auth_server
+package storage
 
 import "errors"
 

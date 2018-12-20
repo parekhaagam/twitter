@@ -5,9 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/coreos/etcd/clientv3"
-	"github.com/google/uuid"
 	"github.com/coreos/etcd/clientv3/namespace"
-	"github.com/parekhaagam/twitter/auth_server"
+	"github.com/google/uuid"
 	"github.com/parekhaagam/twitter/auth_server/storage/memory"
 	"strings"
 	"time"
@@ -23,7 +22,7 @@ var etcdErr error
 func GetOrCreateToken(userId string) (string,error)  {
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
 	if etcdErr != nil {
-		return "",auth_server.ETCD_ERROR
+		return "",ETCD_ERROR
 	}
 	var key []string
 	key = append(key,AUTH_PREFIX,LOGGED_IN_USER_PREFIX,userId)
@@ -82,7 +81,7 @@ func getEtcdClientObjects() (*clientv3.Client,clientv3.KV,error){
 func IsTokenValid(token string) (bool,error) {
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
 	if etcdErr != nil {
-		return false,auth_server.ETCD_ERROR
+		return false,ETCD_ERROR
 	}
 	var key []string
 	fmt.Println(token)
@@ -93,7 +92,7 @@ func IsTokenValid(token string) (bool,error) {
 			return true,nil
 		}
 	}
-	return false,auth_server.INVALID_TOKEN
+	return false,INVALID_TOKEN
 }
 /*func IsTokenValid(token string) (bool){
 	memory.AuthObject.M.Lock()

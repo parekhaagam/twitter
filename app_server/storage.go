@@ -312,7 +312,11 @@ func Storage_Get_all_users(loggedInUserId string) (globals.UserList,error){
 	loggedInUser := globals.User{loggedInUserId} //should come from session
 	for _,user := range allUsers {
 		if user.UserName != loggedInUser.UserName {
-			users = append(users, globals.UserFollowed{user.UserName, StorageFollows(loggedInUser, user)})
+			isFollows,err :=StorageFollows(loggedInUser, user)
+			if err!=nil {
+				return globals.UserList{},err
+			}
+			users = append(users, globals.UserFollowed{user.UserName, isFollows})
 		}
 	}
 	fmt.Println(users)

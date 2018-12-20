@@ -40,7 +40,10 @@ func (a *StorageServerImpl)GetFollowersTweets(ctx context.Context, in *pb.GetFol
 	currUser := globals.User{in.User.UserName}
 
 	//following := GetAllFollowing(currUser)
-	following := GetAllFollowingUser(currUser)
+	following,err := GetAllFollowingUser(currUser)
+	if err!=nil {
+		return nil,err
+	}
 
 	followingNumber := len(following)
 	following = append(following, currUser)
