@@ -21,7 +21,10 @@ func TestLogin(t *testing.T){
 func TestSignUp(t *testing.T){
 
 	InitGlobals()
-	status := InsertUserRecord("agamTesting", "admin")
+	status,err := InsertUserRecord("agamTesting", "admin")
+	if err!=nil {
+		t.Fatal("Error : SignUp fails")
+	}
 	fmt.Println("insert status:" , status)
 	status = CheckUserRecord("agamTesting", "admin")
 	fmt.Println("check status:" , status)
@@ -36,9 +39,15 @@ func TestSignUp(t *testing.T){
 func TestTweetPost(t *testing.T){
 
 	InitGlobals()
-	tid := StorageInsertTweets(globals.User{"manish.n"}, "Testing tweet")
+	tid,err := StorageInsertTweets(globals.User{"manish.n"}, "Testing tweet")
+	if err!=nil {
+		t.Fatal("Error : TestTweetPost fails")
+	}
 	fmt.Println("tid", tid)
-	tweetsList := StorageGetFollowersTweets([]globals.User{globals.User{"manish.n"}})
+	tweetsList,err := StorageGetFollowersTweets([]globals.User{globals.User{"manish.n"}})
+	if err!=nil {
+		t.Fatal("Error : TestTweetPost fails")
+	}
 	if tweetsList[0].Content =="Testing tweet"{
 		fmt.Println("insert tweet passed")
 	}else{
@@ -52,13 +61,15 @@ func TestFollowAllUser(t *testing.T) {
 	InitGlobals()
 
 	StorageFollowUser(globals.User{"manish.n"}, []string{"dhoni007"})
-	usersFollow := GetAllFollowingUser(globals.User{"manish.n"})
+	usersFollow,err := GetAllFollowingUser(globals.User{"manish.n"})
+	if err!=nil {
+		t.Fatal("Error : TestTweetPost fails")
+	}
 	if usersFollow[0].UserName == "dhoni007"{
 		fmt.Println("followUser passed")
 	}else{
 		fmt.Println("followUser failed")
 	}
-
 }
 
 func TestFollowersTweet(t *testing.T) {
@@ -68,7 +79,10 @@ func TestFollowersTweet(t *testing.T) {
 	selectedUserNames := []string{"dhoni007", "srk", "chandler"}
 	StorageFollowUser(currUser, selectedUserNames)
 
-	following := GetAllFollowingUser(currUser)
+	following,err := GetAllFollowingUser(currUser)
+	if err!=nil {
+		t.Fatal("Error : TestTweetPost fails")
+	}
 	tweets := GetFollowersTweets(following)
 	for _, tweet := range tweets {
 		userFound := false

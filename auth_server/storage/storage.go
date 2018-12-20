@@ -7,6 +7,7 @@ import (
 	"github.com/coreos/etcd/clientv3"
 	"github.com/google/uuid"
 	"github.com/coreos/etcd/clientv3/namespace"
+	"github.com/parekhaagam/twitter/auth_server"
 	"github.com/parekhaagam/twitter/auth_server/storage/memory"
 	"strings"
 	"time"
@@ -19,10 +20,10 @@ type Storage interface {
 var etcdClient *clientv3.Client
 var kvStore clientv3.KV
 var etcdErr error
-func GetOrCreateToken(userId string) (string)  {
+func GetOrCreateToken(userId string) (string,error)  {
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
 	if etcdErr != nil {
-		//implement while considering exceptions
+		return "",auth_server.ETCD_ERROR
 	}
 	var key []string
 	key = append(key,AUTH_PREFIX,LOGGED_IN_USER_PREFIX,userId)
@@ -30,7 +31,7 @@ func GetOrCreateToken(userId string) (string)  {
 	if token !=nil && token.Kvs !=nil {
 		tokenDetail := memory.TokenDetails{}
 		json.Unmarshal(token.Kvs[0].Value,&tokenDetail)
-		return tokenDetail.Token
+		return tokenDetail.Token,nil
 	}else {
 		//Get()
 		token := uuid.New().String()
@@ -43,7 +44,7 @@ func GetOrCreateToken(userId string) (string)  {
 		var tokenMapKey []string
 		tokenMapKey = append(tokenMapKey,TOKEN_MAP_PREFIX,token)
 		etcdClient.Put(context.TODO(),strings.Join(tokenMapKey,""),tokenDetailsJsonString)
-		return token
+		return token,nil
 	}
 }
 /*
@@ -78,10 +79,10 @@ func getEtcdClientObjects() (*clientv3.Client,clientv3.KV,error){
 	return etcdClient, kvStore,nil
 }
 
-func IsTokenValid(token string) (bool) {
+func IsTokenValid(token string) (bool,error) {
 	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
 	if etcdErr != nil {
-		//implement while considering exceptions
+		return false,auth_server.ETCD_ERROR
 	}
 	var key []string
 	fmt.Println(token)
@@ -89,10 +90,10 @@ func IsTokenValid(token string) (bool) {
 	userId,_ :=kvStore.Get(context.TODO(),strings.Join(key,""))
 	if userId !=nil && userId.Kvs!=nil {
 		if string(userId.Kvs[0].Value) != "" {
-			return true
+			return true,nil
 		}
 	}
-	return false
+	return false,auth_server.INVALID_TOKEN
 }
 /*func IsTokenValid(token string) (bool){
 	memory.AuthObject.M.Lock()
