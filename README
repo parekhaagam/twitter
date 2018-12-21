@@ -18,6 +18,8 @@ goreman run stop etcd3
 
 Please consider a gist of changes we made in part 3 of this assignment :
 
+Server logs are written to authServer.log, storageServer.log(app_servers log),webServer.log and raft.log
+
 --Changed the project structure.
 
     Now, we can see 3 major directories in the project i.e.
