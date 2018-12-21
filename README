@@ -16,9 +16,11 @@ goreman run stop etcd1 or
 goreman run stop etcd2 or
 goreman run stop etcd3
 
-Please consider a gist of changes we made in part 3 of this assignment :
-
 Server logs are written to authServer.log, storageServer.log(app_servers log),webServer.log and raft.log
+main page will be hosted to http://localhost:8090/twitter
+
+
+Please consider a gist of changes we made in part 3 of this assignment :
 
 --Changed the project structure.
 
