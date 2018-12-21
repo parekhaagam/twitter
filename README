@@ -1,3 +1,54 @@
+<Part-3>
+
+PLease add GOPATH in ~/.profile file, our start scripts are using GOPATH for installing goreman
+
+To start the etcd, auth, app and web server run the below sh file
+./start_server.sh
+
+To stop all the servers, run the below sh file
+./stop_server.sh
+
+To make sure that etcd and goreman are installed, in the initial lines of start_server.sh we are go getting goreman
+and etcd packages.
+
+We are spawning 3 etcd servers namely etcd1, etcd2, etcd3. In order to stop anyone of them run the below command
+goreman run stop etcd1 or
+goreman run stop etcd2 or
+goreman run stop etcd3
+
+Please consider a gist of changes we made in part 3 of this assignment :
+
+--Changed the project structure.
+
+    Now, we can see 3 major directories in the project i.e.
+        app_server      --> Exposes rpc's related to tweets like InsertTweets, GetFollowersTweets, FollowUser etc
+        auth_server     --> Exposes services related to authentication of user like GetToken, Authenticate
+        web_server      --> Exposes http endpoints for the user.
+
+    We are trying to treat them as individual projects
+
+    Apart from these, we have made below folders and files as well
+        globals         --> Contains data structures used commonly in app, web and auth projects
+        cmd             --> It contains startup go files for auth, app and web server
+        server start    --> These calls the go program in cmd package to start app, auth and web servers and
+        and stop scripts    uses goreman to start etcd servers (using Procfile available in project)
+
+    Since, we are treating auth, app and web servers seperately, the all contain a folder called contract folder
+    which contain required contracts(.proto file) which are consistent throughout the project.
+
+    We are propagating error (both kind of errors, library specific and few made by us) from auth and app server to
+    the web server and currently we are displaying those errors as is on the web browser (none of the servers are
+    shutting down as it was happening earlier)
+
+    We have used a logging library to print info and debug related logs
+
+    We have incorporate suggestions given to us in the feedback of Part 1 of this project and also on a
+    piazza post by Adam, we have used race detectors to clear as much potential race conditions in our test cases,
+    piazza posts mentioned about propagating errors, using go modules and writing test, from which we have tried to
+    incorporate all of them (as mentioned in above statements)
+
+
+
 <Part-2>
 We have now seperated auth code and tweet/post code by making seperate servers
 
