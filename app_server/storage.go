@@ -96,7 +96,7 @@ func InsertUserRecord(userId string , password string)(bool,error){
 	return true,nil
 }
 
-func CheckUserRecord(userId string, password string ) (bool)  {
+func CheckUserRecord(userId string, password string ) (bool, error)  {
 
 	log.Info("CheckUserRecord")
 	log.Debug("userId:"  + userId + " \t password: " + password)
@@ -111,12 +111,12 @@ func CheckUserRecord(userId string, password string ) (bool)  {
 	if responsePassword !=nil && responsePassword.Kvs !=nil {
 		passwordCheck := string(responsePassword.Kvs[0].Value)
 		if passwordCheck == password{
-			return true
+			return true,nil
 		}
-		return false
+		return false,nil
 	}
 
-	return false
+	return false,nil
 }
 
 func CheckUserExist(userId string) (bool,error)  {

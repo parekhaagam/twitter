@@ -108,7 +108,7 @@ func (a *StorageServerImpl) InsertUser(ctx context.Context, in *pb.InsertUserReq
 func (a *StorageServerImpl) UserExist(ctx context.Context, in *pb.UserExistRequest) (*pb.UserExistResponse, error) {
 
 	//isSuccess := UserExist(in.UserName)
-	isSuccess,error := CheckUserExist(in.UserName)
+	isSuccess,error := CheckUserRecord(in.UserName, in.Password)
 	if error!=nil {
 		return nil,error
 	}

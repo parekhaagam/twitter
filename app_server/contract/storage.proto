@@ -1,9 +1,5 @@
 syntax = "proto3";
 
-/*
-protoc -I . contract/contract.proto --go_out=plugins=grpc:.
-*/
-
 option java_multiple_files = true;
 option java_package = "io.grpc.examples.contract";
 option java_outer_classname = "StorageProto";
@@ -94,6 +90,7 @@ message InsertUserResponse{
 }
 message UserExistRequest{
     string userName = 1;
+    string password = 2;
 }
 
 message UserExistResponse{

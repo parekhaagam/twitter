@@ -110,8 +110,8 @@ func ValidateLogin(destURL string) http.HandlerFunc {
 		r.ParseForm()
 
 		emailId := strings.Join(r.Form["EmailId"], "")
-		//password := strings.Join(r.Form["password"], "")
-		isValidUser,err :=userExist(emailId)
+		password := strings.Join(r.Form["password"], "")
+		isValidUser,err :=userExist(emailId, password)
 		if err!=nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(err.Error()))
@@ -324,11 +324,11 @@ func insertUser(userId string,password string) (bool,error){
 	}
 	return r.Success,nil
 }
-func userExist(userId string) (bool,error){
+func userExist(userId string, password string) (bool,error){
 	userDBClient := getStorageClient()
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	r, err := userDBClient.UserExist(ctx, &spb.UserExistRequest{UserName: userId})
+	r, err := userDBClient.UserExist(ctx, &spb.UserExistRequest{UserName: userId, Password: password })
 	if err!=nil{
 		fmt.Println(err)
 		return false,err
