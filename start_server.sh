@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 echo "------go getting etcd------"
 go get github.com/etcd-io/etcd
 echo "------go getting gorman------"
