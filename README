@@ -4,7 +4,7 @@ PLease add GOPATH in ~/.profile file, our start scripts are using GOPATH for ins
 
 To start the etcd, auth, app and web server run the below sh file
 ./start_server.sh
-
+(Servers may take around 30 to 60 seconds to boot up)
 To stop all the servers, run the below sh file
 ./stop_server.sh
 
