@@ -20,6 +20,7 @@ func TestAuthGetToken(t *testing.T)  {
 }
 func TestAuthGetTokenConcurrent(t *testing.T)  {
 	set := make(map[string]string)
+	setMutex := sync.Mutex{}
 	var wg sync.WaitGroup
 	for i:=1 ; i<6 ; i++ {
 		wg.Add(1)
@@ -29,7 +30,9 @@ func TestAuthGetTokenConcurrent(t *testing.T)  {
 			if err!=nil {
 				t.Fatal("Error : TestAuthGetTokenConcurrent")
 			}
+			setMutex.Lock()
 			set[token] = userId
+			setMutex.Unlock()
 		}("def@gmail.com")
 	}
 	wg.Wait()

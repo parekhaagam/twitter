@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/parekhaagam/twitter/auth_server/storage/memory"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -19,8 +20,11 @@ type Storage interface {
 var etcdClient *clientv3.Client
 var kvStore clientv3.KV
 var etcdErr error
+var etcdMutex sync.Mutex
 func GetOrCreateToken(userId string) (string,error)  {
-	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
+	kvStore,etcdMutex,etcdErr := getEtcdClientObjects();
+	etcdMutex.Lock()
+	defer etcdMutex.Unlock()
 	if etcdErr != nil {
 		return "",ETCD_ERROR
 	}
@@ -64,29 +68,31 @@ func getToken(userId string) (string)  {
 
 }
 */
-func getEtcdClientObjects() (*clientv3.Client,clientv3.KV,error){
+func getEtcdClientObjects() (clientv3.KV,sync.Mutex,error){
 	if etcdClient==nil && kvStore == nil{
 		etcdClient, etcdErr = clientv3.New(clientv3.Config{Endpoints: []string{RAFT_ENDPOINT1,RAFT_ENDPOINT2, RAFT_ENDPOINT3}})
 		if etcdErr != nil {
-			// handle error!
+			return nil,etcdMutex,etcdErr
 		}
 		kvStore = etcdClient.KV
 		etcdClient.KV = namespace.NewKV(etcdClient.KV, AUTH_PREFIX)
 		etcdClient.Watcher = namespace.NewWatcher(etcdClient.Watcher, AUTH_PREFIX)
 		etcdClient.Lease = namespace.NewLease(etcdClient.Lease, AUTH_PREFIX)
 	}
-	return etcdClient, kvStore,nil
+	return  kvStore,etcdMutex,nil
 }
 
 func IsTokenValid(token string) (bool,error) {
-	etcdClient,kvStore,etcdErr = getEtcdClientObjects();
+	KVStore,etcdMutex,etcdErr := getEtcdClientObjects();
+	etcdMutex.Lock()
+	defer etcdMutex.Unlock()
 	if etcdErr != nil {
 		return false,ETCD_ERROR
 	}
 	var key []string
 	fmt.Println(token)
 	key = append(key,AUTH_PREFIX,TOKEN_MAP_PREFIX,token)
-	userId,_ :=kvStore.Get(context.TODO(),strings.Join(key,""))
+	userId,_ :=KVStore.Get(context.TODO(),strings.Join(key,""))
 	if userId !=nil && userId.Kvs!=nil {
 		if string(userId.Kvs[0].Value) != "" {
 			return true,nil

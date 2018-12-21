@@ -1,9 +1,13 @@
-#!/usr/bin/env bash
+echo "------go getting etcd------"
+go get github.com/etcd-io/etcd
+echo "------go getting gorman------"
+go get github.com/mattn/goreman
 echo "------Starting etcd Server------"
+echo $GOPATH
 comm="$GOPATH/bin/goreman"
 commarg="-f ./Procfile start"
 comm="$comm $commarg"
-nohup $comm > raft.log &
+nohup $GOPATH/bin/goreman -f ./Procfile start  > raft.log &
 
 
 echo "------Building Authentication Server------"
